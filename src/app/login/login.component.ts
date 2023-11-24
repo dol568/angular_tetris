@@ -1,7 +1,8 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
+import {FormsModule} from "@angular/forms";
 import {User} from "../User";
+import {AppComponent} from "../app.component";
 
 @Component({
     selector: 'app-login',

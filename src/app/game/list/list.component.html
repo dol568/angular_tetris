@@ -1,7 +1,10 @@
 <div  style="overflow: hidden">
+  <button type="button"
+          (click)="printHistory()"
+          class="btn btn-md btn-success ml-auto">
+    Save History <i class='fas fa-print' style='font-size:24px'></i></button>
 
-
-<table class="table table-hover">
+<table class="table table-hover table-striped" id="history">
   <thead>
   <tr>
     <th scope="col">Timestamp</th>
@@ -16,4 +19,5 @@
   </tr>
   </tbody>
 </table>
+
 </div>

@@ -1,14 +1,21 @@
 <div class="main row">
-  <div class="col-md-3 border"  style="padding: 1.5%; max-height: 585px;">
-    <app-panel></app-panel>
+  <div class="col-md-3 d-flex flex-column align-items-center">
+    <h2 class="logo pb-3">STATS</h2>
+    <div class="border" style="padding: 1.5%; height: 570px; width: 100%">
+      <app-panel></app-panel>
+    </div>
   </div>
-
-  <div class="col-md-5" style="padding: 1.5%;">
-   <app-tetris></app-tetris>
+  <div class="col-md-5 d-flex flex-column align-items-center">
+    <h2 class="logo pb-3">GAME</h2>
+    <div style="padding: 1.5%; height: 570px; width: 100%">
+      <app-tetris></app-tetris>
+    </div>
   </div>
-
-  <div class="col-md-4 border"  style="padding: 1.5%; max-height: 585px; overflow-y: scroll;">
-    <app-list></app-list>
+  <div class="col-md-4 d-flex flex-column align-items-center">
+    <h2 class="logo pb-3">HISTORY</h2>
+    <div class="border" style="padding: 1.5%; height: 570px; width: 100%; overflow-y: scroll">
+      <app-list></app-list>
+    </div>
   </div>
 </div>
 

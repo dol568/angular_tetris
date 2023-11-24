@@ -28,7 +28,7 @@
         <input
                 type="text"
                 required
-                pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$"
+                email
                 #email="ngModel"
                 class="form-control"
                 name="email"
@@ -38,7 +38,7 @@
         <div *ngIf="email.invalid && (email.dirty || email.touched)"
              class="invalid-feedback">
           <div *ngIf="email.errors?.['required']">Email is required</div>
-          <div *ngIf="email.errors?.['pattern']">Please enter a valid email address</div>
+          <div *ngIf="email.errors?.['email']">Please enter a valid email address</div>
         </div>
     </div>
 
