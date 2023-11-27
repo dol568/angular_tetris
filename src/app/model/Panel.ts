@@ -1,7 +1,7 @@
 export class Panel {
     points: number = 0;
     bestScore: number = 0;
-    gameStatus: string = "READY";
+    gameStatus: string = 'READY';
     display: string = '00:00:00';
     tableData: TableData[] = [];
 }
@@ -9,4 +9,8 @@ export class Panel {
 export class TableData {
     actionName: string = '';
     timestamp: Date = new Date();
+}
+
+export enum GameStatus {
+  READY, STARTED, PAUSED
 }

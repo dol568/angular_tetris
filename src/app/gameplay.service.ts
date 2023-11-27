@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {Panel} from "./Panel";
+import {Panel} from "./model/Panel";
 import {BehaviorSubject, Observable} from "rxjs";
 
 @Injectable({

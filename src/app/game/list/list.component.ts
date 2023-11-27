@@ -1,41 +1,24 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {PanelComponent} from "../panel/panel.component";
-import {TableData} from "../../Panel";
-import {GameplayService} from "../../gameplay.service";
+import {Panel} from "../../model/Panel";
+import {SortPipe} from "../../pipes/sort.pipe";
+import {FilterPipe} from "../../pipes/filter.pipe";
+import {FormsModule} from "@angular/forms";
 
 @Component({
   selector: 'app-list',
   standalone: true,
-  imports: [CommonModule, PanelComponent],
+  imports: [CommonModule, PanelComponent, SortPipe, FilterPipe, FormsModule],
   templateUrl: './list.component.html',
   styleUrl: './list.component.scss'
 })
-export class ListComponent implements OnInit {
-  data: TableData[];
+export class ListComponent {
+  @Input() panel: Panel;
+  reverse: boolean;
+  term: any;
 
-  constructor(private ds: GameplayService) {
-  }
-
-  ngOnInit(): void {
-    this.getData();
-  }
-
-  getData() {
-    this.ds.panel$.subscribe(value => {
-      this.data = value.tableData;
-    })
-  }
-
-  printHistory() {
-    let dataType = 'application/vnd.ms-excel.sheet.macroEnabled.12';
-    let tableSelect = document.getElementById('history');
-    let tableHtml = tableSelect.outerHTML.replace(/ /g, '%20');
-    let downloadLink = document.createElement('a');
-    document.body.appendChild(downloadLink);
-    downloadLink.href = 'data:' + dataType + ', ' + tableHtml;
-    downloadLink.download = 'history-report.xls';
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
+  changeOrder() {
+    this.reverse = !this.reverse;
   }
 }

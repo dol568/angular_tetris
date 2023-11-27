@@ -1,15 +1,14 @@
 import {Component, OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet } from '@angular/router';
 import {NavbarComponent} from "./navbar/navbar.component";
 import {LoginComponent} from "./login/login.component";
 import {GameComponent} from "./game/game.component";
-import {User} from "./User";
+import {User} from "./model/User";
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, NavbarComponent, LoginComponent, GameComponent],
+  imports: [CommonModule, NavbarComponent, LoginComponent, GameComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
@@ -17,13 +16,8 @@ export class AppComponent implements OnInit {
   title = 'angularTetris';
   user: User;
 
-
-
-  private loadCurrentUser() {
-    const user = localStorage.getItem('user');
-    if (user) {
-      this.user = JSON.parse(user);
-    }
+  ngOnInit(): void {
+    this.loadCurrentUser();
   }
 
   getUser(user: User) {
@@ -31,11 +25,15 @@ export class AppComponent implements OnInit {
   }
 
   logoutUser() {
-    this.user = null; // or set to an empty user state
-    localStorage.clear();
+    this.user = null;
+    localStorage.removeItem('user');
+    localStorage.removeItem('panel');
   }
 
-  ngOnInit(): void {
-    this.loadCurrentUser();
+  private loadCurrentUser() {
+    const user = localStorage.getItem('user');
+    if (user) {
+      this.user = JSON.parse(user);
+    }
   }
 }

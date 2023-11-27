@@ -1,4 +1,4 @@
 <app-navbar [user]="user" (logout)="logoutUser()"></app-navbar>
-<app-login (formData)="getUser($event)" *ngIf="!user"></app-login>
-<app-game [user]="user" class="content" *ngIf="user"></app-game>
+<app-login (formData)="getUser($event)" *ngIf="!user" class="content"></app-login>
+<app-game [user]="user" *ngIf="user"></app-game>
 

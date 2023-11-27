@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from "@angular/forms";
-import {User} from "../User";
+import {User} from "../model/User";
 import {AppComponent} from "../app.component";
 
 @Component({

@@ -1,20 +1,26 @@
 <div class="main row">
   <div class="col-md-3 d-flex flex-column align-items-center">
-    <h2 class="logo pb-3">STATS</h2>
-    <div class="border" style="padding: 1.5%; height: 570px; width: 100%">
-      <app-panel></app-panel>
+    <h4 class="logo pb-1">HALL OF FAME</h4>
+    <div class="border" style="padding: 1.5%; height: 565px; width: 100%; overflow-y: scroll">
+      <app-hall-of-fame [hallFame]="hallFame"></app-hall-of-fame>
     </div>
   </div>
-  <div class="col-md-5 d-flex flex-column align-items-center">
-    <h2 class="logo pb-3">GAME</h2>
-    <div style="padding: 1.5%; height: 570px; width: 100%">
-      <app-tetris></app-tetris>
+  <div class="col-md-2 d-flex flex-column align-items-center">
+    <h4 class="logo pb-1">STATS</h4>
+    <div class="border" style="padding: 1.5%; height: 565px; width: 100%">
+      <app-panel [panel]="panel"></app-panel>
     </div>
   </div>
   <div class="col-md-4 d-flex flex-column align-items-center">
-    <h2 class="logo pb-3">HISTORY</h2>
-    <div class="border" style="padding: 1.5%; height: 570px; width: 100%; overflow-y: scroll">
-      <app-list></app-list>
+    <h4 class="logo pb-1">GAME</h4>
+    <div style="padding: 1.5%; height: 565px; width: 100%">
+      <app-tetris (panelData)="getPanel($event)" (scoreData)="getScores($event)" [user]="user"></app-tetris>
+    </div>
+  </div>
+  <div class="col-md-3 d-flex flex-column align-items-center">
+    <h4 class="logo pb-1">HISTORY</h4>
+    <div class="border" style="padding: 1.5%; height: 565px; width: 100%; overflow-y: scroll">
+      <app-list [panel]="panel"></app-list>
     </div>
   </div>
 </div>

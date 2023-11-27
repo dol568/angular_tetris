@@ -1,8 +1,9 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, EventEmitter, HostListener, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {TetrisCoreComponent, TetrisCoreModule} from "ngx-tetris";
-import {GameplayService} from "../../gameplay.service";
-import {Panel} from "../../Panel";
+import {Panel} from "../../model/Panel";
+import {User} from "../../model/User";
+import {HallFame} from "../../model/HallFame";
 
 @Component({
   selector: 'app-tetris',
@@ -14,12 +15,13 @@ import {Panel} from "../../Panel";
 export class TetrisComponent implements OnInit {
   @ViewChild(TetrisCoreComponent)
   private _tetris: TetrisCoreComponent;
-  panel: Panel;
+  @Output() panelData = new EventEmitter<Panel>();
+  @Output() scoreData = new EventEmitter<HallFame[]>();
+  @Input() user: User;
+  panel: Panel = new Panel();
+  hallFame: HallFame[] = [];
   interval: number;
   time: number = 0;
-
-  constructor(private gs: GameplayService) {
-  }
 
   ngOnInit(): void {
     if (localStorage.getItem('panel') != null) {
@@ -29,49 +31,43 @@ export class TetrisComponent implements OnInit {
       clearInterval(this.interval);
       this.time = 0;
       this.panel.display = this.transform(this.time);
-      this.gs.setPanel(this.panel);
-      this.gs.panel$.subscribe(value => this.panel = value);
-    } else {
-      this.gs.panel$.subscribe(value => this.panel = value);
+      this.savePanel();
+    }
+    if (localStorage.getItem('hallFame') != null) {
+      this.hallFame = JSON.parse(localStorage.getItem('hallFame'));
+      this.scoreData.emit(this.hallFame);
     }
   }
 
   start() {
-    this.gs.panel$.subscribe(value => this.panel = value);
     this.panel.gameStatus = 'STARTED';
     this.interval = setInterval(() => {
       this.time++;
       this.panel.display = this.transform(this.time);
     }, 1000);
-    this.panel.tableData.push({timestamp: new Date(), actionName: 'Player started the game'});
+    this.panel.tableData.push({timestamp: new Date(), actionName: 'Started the game'});
     this.savePanel();
     this._tetris.actionStart();
   }
 
   stop() {
-    this.gs.panel$.subscribe(value => this.panel = value);
     this.panel.gameStatus = 'PAUSED';
     clearInterval(this.interval);
     this.panel.display = this.transform(this.time);
-    this.panel.tableData.push({timestamp: new Date(), actionName: 'Player paused the game'});
+    this.panel.tableData.push({timestamp: new Date(), actionName: 'Paused the game'});
     this.savePanel();
     this._tetris.actionStop();
   }
 
   reset() {
-    this.gs.panel$.subscribe(value => this.panel = value);
-
-    if (this.panel.points > this.panel.bestScore) {
-      this.panel.bestScore = this.panel.points;
-    }
     this.panel.points = 0;
     clearInterval(this.interval);
     this.time = 0;
     this.panel.display = this.transform(this.time);
-    this.panel.tableData.push({timestamp: new Date(), actionName: 'Player reset the game'});
+    this.panel.tableData.push({timestamp: new Date(), actionName: 'Reset the game'});
     this.panel.gameStatus === 'STARTED'
       ? this.panel.gameStatus = 'STARTED'
-      : this.panel.gameStatus = 'READY';
+      : this.panel.gameStatus = 'READY'
     this.savePanel();
     this._tetris.actionReset();
     if (this.panel.gameStatus === 'STARTED') {
@@ -82,20 +78,25 @@ export class TetrisComponent implements OnInit {
   }
 
   onLineCleared() {
-    this.gs.panel$.subscribe(value => this.panel = value);
     this.panel.points += 100;
-    this.panel.tableData.push({timestamp: new Date(), actionName: 'Player cleared a line'});
+    this.panel.tableData.push({timestamp: new Date(), actionName: 'Cleared a line'});
     if (this.panel.points > this.panel.bestScore) {
       this.panel.bestScore = this.panel.points;
+
+      const existingEntry = this.hallFame.find(hall => hall.username === this.user.username);
+
+      if (existingEntry) {
+        existingEntry.bestScore = this.panel.bestScore;
+      } else {
+        this.hallFame.push({username: this.user.username, bestScore: this.panel.bestScore});
+      }
+      this.saveHighestScore();
     }
     this.savePanel();
   }
 
   onGameOver() {
     alert(`You lost. Your score was ${this.panel.points}`)
-    if (this.panel.points > this.panel.bestScore) {
-      this.panel.bestScore = this.panel.points;
-    }
     this.panel.points = 0;
     clearInterval(this.interval);
     this.time = 0;
@@ -118,7 +119,62 @@ export class TetrisComponent implements OnInit {
   }
 
   private savePanel() {
-    this.gs.setPanel(this.panel);
+    this.panelData.emit(this.panel);
     localStorage.setItem('panel', JSON.stringify(this.panel));
   }
+
+  private saveHighestScore() {
+    this.scoreData.emit(this.hallFame);
+    localStorage.setItem('hallFame', JSON.stringify(this.hallFame));
+  }
+
+  left() {
+    this._tetris.actionLeft();
+  }
+
+  right() {
+    this._tetris.actionRight();
+  }
+
+  down() {
+    this._tetris.actionDown();
+  }
+
+  rotate() {
+    this._tetris.actionRotate();
+  }
+
+  drop() {
+    this._tetris.actionDrop();
+  }
+
+  @HostListener('window:keydown.arrowleft', ['$event'])
+  moveLeft(event: KeyboardEvent) {
+    event.stopPropagation()
+    this.left()
+  }
+
+  @HostListener('window:keydown.arrowright', ['$event'])
+  moveRight(event: KeyboardEvent) {
+    event.stopPropagation()
+    this.right()
+  }
+
+  @HostListener('window:keydown.arrowdown', ['$event'])
+  moveDown(event: KeyboardEvent) {
+    event.stopPropagation()
+    this.down()
+  }
+
+  @HostListener('window:keydown.arrowup', ['$event'])
+  rotatePiece(event: KeyboardEvent) {
+    event.stopPropagation()
+    this.rotate()
+  }
+
+    @HostListener('window:keydown.enter', ['$event'])
+    dropPiece(event: KeyboardEvent) {
+        event.stopPropagation()
+        this.drop()
+    }
 }
