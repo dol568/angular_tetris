@@ -1,27 +1,43 @@
-<div class="d-flex flex-row  justify-content-start">
-  <tetris-core #game (lineCleared)="onLineCleared()" (gameOver)="onGameOver()"></tetris-core>
+<div class="d-flex flex-row justify-content-start">
+  <tetris-core (lineCleared)="onLineCleared()"
+               (gameOver)="onGameOver()"
+               [class.black-and-white]="blackAndWhite"
+  ></tetris-core>
   <div class="d-flex flex-column align-items-center pb-10" style="flex: 1">
     <button type="button" class="btn btn-outline-success btn-lg btn-block"
-            [disabled]="this.panel.gameStatus === 'STARTED'"
+            [disabled]="this.panel.gameStatus === GameStatus.STARTED"
             (click)="start()"
-    >Start</button>
+    >Start
+    </button>
     <button type="button" class="btn btn-outline-danger btn-lg btn-block"
-            [disabled]="this.panel.gameStatus === 'PAUSED'
-            || this.panel.gameStatus === 'READY'"
-    (click)="stop()">Stop</button>
+            [disabled]="this.panel.gameStatus === GameStatus.PAUSED
+            || this.panel.gameStatus === GameStatus.READY"
+            (click)="stop()"
+    >Stop
+    </button>
     <button type="button" class="btn btn-outline-info btn-lg btn-block"
-            [disabled]="this.panel.gameStatus === 'READY'"
-            (click)="reset()">Reset</button>
+            [disabled]="this.panel.gameStatus === GameStatus.READY"
+            (click)="reset()"
+    >Reset
+    </button>
+    <button *ngIf="!blackAndWhite" type="button" class="btn btn-outline-dark btn-lg btn-block"
+            (click)="changeColor()"
+    >Black And White
+    </button>
+    <button *ngIf="blackAndWhite" type="button" class="btn btn-outline-warning btn-lg btn-block"
+            (click)="changeColor()"
+    >Color
+    </button>
 
     <div class="d-flex align-items-center mt-auto">
       <a (click)="left()"><i class="fas fa-angle-left" style="font-size: 50px; cursor: pointer"></i></a>
       <a (click)="rotate()" class="mr-3 ml-3"><i class="fas fa-sync-alt"
-                                                            style="font-size: 40px; cursor: pointer"></i></a>
+                                                 style="font-size: 40px; cursor: pointer"></i></a>
       <a (click)="right()"><i class="fas fa-angle-right" style="font-size: 50px; cursor: pointer"></i></a>
     </div>
 
     <a (click)="down()"><i class="fas fa-angle-down" style="font-size: 50px; cursor: pointer"></i></a>
     <a (click)="drop()"><i class="fas fa-angle-double-down"
-                                      style="font-size: 50px; cursor: pointer"></i></a>
+                           style="font-size: 50px; cursor: pointer"></i></a>
   </div>
 </div>

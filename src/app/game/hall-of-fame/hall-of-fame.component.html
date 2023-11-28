@@ -1,22 +1,25 @@
 <div>
-    <button type="button"
-(click)="print()"
-            class="btn btn-md btn-success ml-auto">
-      Print <i class='fas fa-print' style='font-size:24px'></i></button>
-  <table class="table table-hover table-striped" id="top10">
-    <thead>
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">Username</th>
-      <th scope="col">Best Score</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr *ngFor="let item of hallFame; index as i">
-      <th>{{ i + 1 }}</th>
-      <th>{{ item.username }}</th>
-      <th>{{ item.bestScore}}</th>
-    </tr>
-    </tbody>
-  </table>
+    <button type="button" (click)="print()"
+            class="btn btn-block btn-success" [disabled]="hallFame?.length === 0 || hallFame === undefined">
+        Print <i class='fas fa-print' style='font-size:24px'></i></button>
+    <table class="table table-hover table-striped" id="top10">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Username</th>
+            <th scope="col" (click)="changeOrder()">Best Score <i [class]="'fa fa-sort-' + (reverse ? 'asc' : 'desc')"
+              aria-hidden="true"></i>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let item of hallFame?.slice(0,10) | sort:!reverse:'bestScore'; index as i">
+            <th>{{ i + 1 }}</th>
+            <th>{{ item.username }}</th>
+            <th>{{ item.bestScore}}</th>
+        </tr>
+        </tbody>
+    </table>
 </div>
+
+

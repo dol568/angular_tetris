@@ -1,9 +1,28 @@
-import {Component, EventEmitter, HostListener, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {
+    ChangeDetectorRef,
+    Component,
+    EventEmitter,
+    HostListener,
+    Input, OnChanges,
+    OnDestroy,
+    OnInit,
+    Output, SimpleChanges,
+
+    ViewChild
+} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {TetrisCoreComponent, TetrisCoreModule} from "ngx-tetris";
-import {Panel} from "../../model/Panel";
-import {User} from "../../model/User";
-import {HallFame} from "../../model/HallFame";
+import {GameStatus, IPanel} from "../../model/IPanel";
+import {IUser} from "../../model/IUser";
+import {IHallFame} from "../../model/IHallFame";
+import {
+  _action_game_over,
+  _action_line_cleared,
+  _action_paused_game, _action_reset_game,
+  _action_started_game,
+  _localstorage_hall_fame,
+  _localstorage_panel
+} from "../../model/_const_vars";
 
 @Component({
   selector: 'app-tetris',
@@ -12,49 +31,63 @@ import {HallFame} from "../../model/HallFame";
   templateUrl: './tetris.component.html',
   styleUrl: './tetris.component.scss'
 })
-export class TetrisComponent implements OnInit {
+export class TetrisComponent implements OnInit, OnDestroy {
   @ViewChild(TetrisCoreComponent)
   private _tetris: TetrisCoreComponent;
-  @Output() panelData = new EventEmitter<Panel>();
-  @Output() scoreData = new EventEmitter<HallFame[]>();
-  @Input() user: User;
-  panel: Panel = new Panel();
-  hallFame: HallFame[] = [];
-  interval: number;
+  @Output() panelData = new EventEmitter<IPanel>();
+  @Output() scoreData = new EventEmitter<IHallFame[]>();
+  @Input() user: IUser;
+  panel: IPanel;
+  hallFame: IHallFame[] = [];
+  interval: number = 0;
   time: number = 0;
+  blackAndWhite: boolean = false;
+  protected readonly GameStatus = GameStatus;
+
+
+  changeColor() {
+    this.blackAndWhite = !this.blackAndWhite;
+
+  }
 
   ngOnInit(): void {
-    if (localStorage.getItem('panel') != null) {
-      this.panel = JSON.parse(localStorage.getItem('panel'));
-      this.panel.gameStatus = 'READY';
+    if (localStorage.getItem(_localstorage_panel) != null) {
+      this.panel = JSON.parse(localStorage.getItem(_localstorage_panel));
+      this.panel.gameStatus = GameStatus.READY;
       this.panel.points = 0;
       clearInterval(this.interval);
       this.time = 0;
       this.panel.display = this.transform(this.time);
       this.savePanel();
     }
-    if (localStorage.getItem('hallFame') != null) {
-      this.hallFame = JSON.parse(localStorage.getItem('hallFame'));
+    if (localStorage.getItem(_localstorage_hall_fame) != null) {
+      this.hallFame = JSON.parse(localStorage.getItem(_localstorage_hall_fame));
       this.scoreData.emit(this.hallFame);
     }
   }
 
+  ngOnDestroy(): void {
+    console.log("destroy")
+    this._tetris.actionStop();
+    this._tetris.actionReset();
+  }
+
   start() {
-    this.panel.gameStatus = 'STARTED';
+    this.panel.gameStatus = GameStatus.STARTED;
     this.interval = setInterval(() => {
       this.time++;
       this.panel.display = this.transform(this.time);
     }, 1000);
-    this.panel.tableData.push({timestamp: new Date(), actionName: 'Started the game'});
+    this.panel.tableData.push({timestamp: new Date(), actionName: _action_started_game});
     this.savePanel();
     this._tetris.actionStart();
   }
 
   stop() {
-    this.panel.gameStatus = 'PAUSED';
+    this.panel.gameStatus = GameStatus.PAUSED;
     clearInterval(this.interval);
     this.panel.display = this.transform(this.time);
-    this.panel.tableData.push({timestamp: new Date(), actionName: 'Paused the game'});
+    this.panel.tableData.push({timestamp: new Date(), actionName: _action_paused_game});
     this.savePanel();
     this._tetris.actionStop();
   }
@@ -64,22 +97,22 @@ export class TetrisComponent implements OnInit {
     clearInterval(this.interval);
     this.time = 0;
     this.panel.display = this.transform(this.time);
-    this.panel.tableData.push({timestamp: new Date(), actionName: 'Reset the game'});
-    this.panel.gameStatus === 'STARTED'
-      ? this.panel.gameStatus = 'STARTED'
-      : this.panel.gameStatus = 'READY'
+    this.panel.tableData.push({timestamp: new Date(), actionName: _action_reset_game});
+    this.panel.gameStatus === GameStatus.STARTED
+      ? this.panel.gameStatus = GameStatus.STARTED
+      : this.panel.gameStatus = GameStatus.READY
     this.savePanel();
     this._tetris.actionReset();
-    if (this.panel.gameStatus === 'STARTED') {
-      this.start();
-    } else {
-      this.panel.gameStatus = 'READY';
-    }
+    this.panel.gameStatus === GameStatus.STARTED
+      ? this.start()
+      : this.panel.gameStatus = GameStatus.READY;
+
   }
 
   onLineCleared() {
     this.panel.points += 100;
-    this.panel.tableData.push({timestamp: new Date(), actionName: 'Cleared a line'});
+
+    this.panel.tableData.push({timestamp: new Date(), actionName: _action_line_cleared});
     if (this.panel.points > this.panel.bestScore) {
       this.panel.bestScore = this.panel.points;
 
@@ -101,8 +134,8 @@ export class TetrisComponent implements OnInit {
     clearInterval(this.interval);
     this.time = 0;
     this.panel.display = this.transform(this.time);
-    this.panel.tableData.push({timestamp: new Date(), actionName: 'Game over'});
-    this.panel.gameStatus = 'READY';
+    this.panel.tableData.push({timestamp: new Date(), actionName: _action_game_over});
+    this.panel.gameStatus = GameStatus.READY;
     this.savePanel();
     this._tetris.actionReset();
   }
@@ -120,12 +153,16 @@ export class TetrisComponent implements OnInit {
 
   private savePanel() {
     this.panelData.emit(this.panel);
-    localStorage.setItem('panel', JSON.stringify(this.panel));
+    localStorage.setItem(_localstorage_panel, JSON.stringify(this.panel));
   }
 
   private saveHighestScore() {
+    console.log(this.hallFame)
+    this.hallFame
+      .sort((a, b) => b.bestScore - a.bestScore)
+    console.log(this.hallFame)
     this.scoreData.emit(this.hallFame);
-    localStorage.setItem('hallFame', JSON.stringify(this.hallFame));
+    localStorage.setItem(_localstorage_hall_fame, JSON.stringify(this.hallFame));
   }
 
   left() {
@@ -150,31 +187,31 @@ export class TetrisComponent implements OnInit {
 
   @HostListener('window:keydown.arrowleft', ['$event'])
   moveLeft(event: KeyboardEvent) {
-    event.stopPropagation()
-    this.left()
+    event.stopPropagation();
+    this.left();
   }
 
   @HostListener('window:keydown.arrowright', ['$event'])
   moveRight(event: KeyboardEvent) {
-    event.stopPropagation()
-    this.right()
+    event.stopPropagation();
+    this.right();
   }
 
   @HostListener('window:keydown.arrowdown', ['$event'])
   moveDown(event: KeyboardEvent) {
-    event.stopPropagation()
-    this.down()
+    event.stopPropagation();
+    this.down();
   }
 
   @HostListener('window:keydown.arrowup', ['$event'])
   rotatePiece(event: KeyboardEvent) {
-    event.stopPropagation()
-    this.rotate()
+    event.stopPropagation();
+    this.rotate();
   }
 
-    @HostListener('window:keydown.enter', ['$event'])
-    dropPiece(event: KeyboardEvent) {
-        event.stopPropagation()
-        this.drop()
-    }
+  @HostListener('window:keydown.enter', ['$event'])
+  dropPiece(event: KeyboardEvent) {
+    event.stopPropagation();
+    this.drop();
+  }
 }

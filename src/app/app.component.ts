@@ -1,9 +1,11 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {NavbarComponent} from "./navbar/navbar.component";
 import {LoginComponent} from "./login/login.component";
 import {GameComponent} from "./game/game.component";
-import {User} from "./model/User";
+import {IUser} from "./model/IUser";
+import {_localstorage_panel, _localstorage_user} from "./model/_const_vars";
+import {TetrisCoreComponent} from "ngx-tetris";
 
 @Component({
   selector: 'app-root',
@@ -14,24 +16,24 @@ import {User} from "./model/User";
 })
 export class AppComponent implements OnInit {
   title = 'angularTetris';
-  user: User;
+  user: IUser;
 
   ngOnInit(): void {
     this.loadCurrentUser();
   }
 
-  getUser(user: User) {
+  getUser(user: IUser) {
     this.user = user;
   }
 
   logoutUser() {
     this.user = null;
-    localStorage.removeItem('user');
-    localStorage.removeItem('panel');
+    localStorage.removeItem(_localstorage_user);
+    localStorage.removeItem(_localstorage_panel);
   }
 
   private loadCurrentUser() {
-    const user = localStorage.getItem('user');
+    const user = localStorage.getItem(_localstorage_user);
     if (user) {
       this.user = JSON.parse(user);
     }

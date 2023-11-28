@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {User} from "../model/User";
+import {IUser} from "../model/IUser";
 
 @Component({
   selector: 'app-navbar',
@@ -10,7 +10,7 @@ import {User} from "../model/User";
   styleUrl: './navbar.component.scss'
 })
 export class NavbarComponent {
-  @Input() user: User;
+  @Input() user: IUser;
   @Output() logout = new EventEmitter<void>();
 
   exit() {

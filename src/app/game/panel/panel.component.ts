@@ -1,7 +1,6 @@
 import {Component, Input} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {Panel} from "../../model/Panel";
-
+import {IPanel, GameStatus} from "../../model/IPanel";
 
 @Component({
   selector: 'app-panel',
@@ -11,5 +10,6 @@ import {Panel} from "../../model/Panel";
   styleUrl: './panel.component.scss'
 })
 export class PanelComponent{
-  @Input() panel: Panel;
+  @Input() panel: IPanel;
+  GameStatus = GameStatus;
 }
