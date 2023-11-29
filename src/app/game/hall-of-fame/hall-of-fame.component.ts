@@ -1,11 +1,9 @@
 import {Component, Input, OnInit} from '@angular/core';
-import { CommonModule } from '@angular/common';
-import {IUser} from "../../model/IUser";
-import {IPanel} from "../../model/IPanel";
+import {CommonModule} from '@angular/common';
 import {IHallFame} from "../../model/IHallFame";
-import {FilterPipe} from "../../pipes/filter.pipe";
 import {SortPipe} from "../../pipes/sort.pipe";
-import {isArray} from "@angular/compiler-cli/src/ngtsc/annotations/common";
+import {_localstorage_hall_fame} from "../../model/_const_vars";
+import * as XLSX from "xlsx";
 
 @Component({
   selector: 'app-hall-of-fame',
@@ -14,27 +12,27 @@ import {isArray} from "@angular/compiler-cli/src/ngtsc/annotations/common";
   templateUrl: './hall-of-fame.component.html',
   styleUrl: './hall-of-fame.component.scss'
 })
-export class HallOfFameComponent{
-  @Input() hallFame: IHallFame[] = [];
+export class HallOfFameComponent implements OnInit {
+
+  @Input() hallFame: IHallFame[];
   reverse: boolean;
+
+  ngOnInit(): void {
+    const savedHallFame = localStorage.getItem(_localstorage_hall_fame);
+    if (savedHallFame) {
+      this.hallFame = JSON.parse(savedHallFame);
+    }
+  }
 
   changeOrder() {
     this.reverse = !this.reverse;
   }
 
   print() {
-    let dataType = 'application/vnd.ms-excel.sheet.macroEnabled.12';
-    let tableSelect = document.getElementById('top10');
-    console.log(tableSelect)
-    let tableHtml = tableSelect.outerHTML.replace(/ /g, '%20');
-    console.log(tableHtml)
-    let downloadLink = document.createElement('a');
-    document.body.appendChild(downloadLink);
-    downloadLink.href = 'data:' + dataType + ', ' + tableHtml;
-    console.log(downloadLink)
-    downloadLink.download = 'top10.xls';
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
+    if (confirm('You are about to save TOP 10 table to a file')) {
+      let tableSelect = document.getElementById('top10');
+      let workbook = XLSX.utils.table_to_book(tableSelect);
+      XLSX.writeFile(workbook, "HallOfFame.xls");
+    }
   }
-
 }

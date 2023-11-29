@@ -1,11 +1,10 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
 import {NavbarComponent} from "./navbar/navbar.component";
 import {LoginComponent} from "./login/login.component";
 import {GameComponent} from "./game/game.component";
 import {IUser} from "./model/IUser";
 import {_localstorage_panel, _localstorage_user} from "./model/_const_vars";
-import {TetrisCoreComponent} from "ngx-tetris";
 
 @Component({
   selector: 'app-root',

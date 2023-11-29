@@ -1,18 +1,18 @@
 <div class="d-flex flex-row justify-content-start flex-column align-items-center mt-3">
   <div class="text-muted">GAME STATUS</div>
-  <div *ngIf="this.panel.gameStatus === GameStatus.READY" class="alert alert-primary"
-       role="alert" style="font-size: 25px">{{ panel.gameStatus }}</div>
-  <div *ngIf="this.panel.gameStatus === GameStatus.STARTED" class="alert alert-success"
-       role="alert" style="font-size: 25px">{{ panel.gameStatus }}</div>
-  <div *ngIf="this.panel.gameStatus === GameStatus.PAUSED" class="alert alert-danger"
-       role="alert" style="font-size: 25px">{{ panel.gameStatus }}</div>
+  <div *ngIf="this.panel.gameStatus === GameStatus.READY" class="alert alert-primary status"
+       role="alert">{{ panel.gameStatus }}</div>
+  <div *ngIf="this.panel.gameStatus === GameStatus.STARTED" class="alert alert-success status"
+       role="alert">{{ panel.gameStatus }}</div>
+  <div *ngIf="this.panel.gameStatus === GameStatus.PAUSED" class="alert alert-danger status"
+       role="alert">{{ panel.gameStatus }}</div>
   <br/>
   <div>POINTS</div>
-  <div style="font-size: 35px"><strong>{{ panel.points }}</strong></div>
+  <div class="info"><strong>{{ panel.points }}</strong></div>
   <br/>
   <div>TIME</div>
-  <div style="font-size: 35px">{{ panel.display }}</div>
+  <div class="info">{{ panel.display }}</div>
   <br/><br/><br/><br/><br/><br/><br/>
   <div>BEST SCORE</div>
-  <div style="font-size: 35px"><strong>{{ panel.bestScore }}</strong></div>
+  <div class="info"><strong>{{ panel.bestScore }}</strong></div>
 </div>

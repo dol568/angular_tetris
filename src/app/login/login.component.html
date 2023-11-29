@@ -14,7 +14,7 @@
         name="username"
         [(ngModel)]="user.username"
         [class.is-invalid]="username.invalid && username.touched"
-        />
+      />
       <div *ngIf="username.invalid && (username.dirty || username.touched)"
            class="invalid-feedback">
         <div *ngIf="username.errors?.['required']">Username is required</div>
@@ -23,28 +23,27 @@
       </div>
     </div>
 
-      <div class="mb-3 form-group">
-        <label>Email</label>
-        <input
-                type="text"
-                required
-                email
-                #email="ngModel"
-                class="form-control"
-                name="email"
-                [(ngModel)]="user.email"
-                [class.is-invalid]="email.invalid && email.touched"
-        />
-        <div *ngIf="email.invalid && (email.dirty || email.touched)"
-             class="invalid-feedback">
-          <div *ngIf="email.errors?.['required']">Email is required</div>
-          <div *ngIf="email.errors?.['email']">Please enter a valid email address</div>
-        </div>
+    <div class="mb-3 form-group">
+      <label>Email</label>
+      <input
+        type="text"
+        required
+        email
+        #email="ngModel"
+        class="form-control"
+        name="email"
+        [(ngModel)]="user.email"
+        [class.is-invalid]="email.invalid && email.touched"
+      />
+      <div *ngIf="email.invalid && (email.dirty || email.touched)"
+           class="invalid-feedback">
+        <div *ngIf="email.errors?.['required']">Email is required</div>
+        <div *ngIf="email.errors?.['email']">Please enter a valid email address</div>
+      </div>
     </div>
 
     <hr class="mb-4"/>
     <button
-      style="background-color: #5bb462;"
       class="btn btn-lg btn-block"
       [disabled]="!userData.form.valid"
       type="submit"

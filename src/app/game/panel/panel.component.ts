@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {CommonModule} from '@angular/common';
 import {IPanel, GameStatus} from "../../model/IPanel";
 
 @Component({
@@ -9,7 +9,7 @@ import {IPanel, GameStatus} from "../../model/IPanel";
   templateUrl: './panel.component.html',
   styleUrl: './panel.component.scss'
 })
-export class PanelComponent{
+export class PanelComponent {
   @Input() panel: IPanel;
   GameStatus = GameStatus;
 }

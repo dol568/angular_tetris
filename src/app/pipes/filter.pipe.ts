@@ -11,11 +11,10 @@ export class FilterPipe implements PipeTransform {
     if(!value)return null;
     if(!args)return value;
 
-    args = args.toLowerCase();
+    args = args.toLowerCase().trim();
 
     return value.filter(function(item){
       return JSON.stringify(item.actionName).toLowerCase().includes(args);
     });
   }
-
 }

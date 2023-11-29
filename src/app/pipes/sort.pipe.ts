@@ -1,4 +1,4 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import {Pipe, PipeTransform} from '@angular/core';
 
 @Pipe({
   name: 'sort',
@@ -27,7 +27,5 @@ export class SortPipe implements PipeTransform {
     } else {
       return sortedArray
     }
-    }
-
-
+  }
 }

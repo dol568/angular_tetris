@@ -1,14 +1,12 @@
 import {
-    ChangeDetectorRef,
-    Component,
-    EventEmitter,
-    HostListener,
-    Input, OnChanges,
-    OnDestroy,
-    OnInit,
-    Output, SimpleChanges,
-
-    ViewChild
+  Component,
+  EventEmitter,
+  HostListener,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
 } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {TetrisCoreComponent, TetrisCoreModule} from "ngx-tetris";
@@ -37,18 +35,12 @@ export class TetrisComponent implements OnInit, OnDestroy {
   @Output() panelData = new EventEmitter<IPanel>();
   @Output() scoreData = new EventEmitter<IHallFame[]>();
   @Input() user: IUser;
-  panel: IPanel;
+  panel: IPanel = {points: 0, bestScore: 0, gameStatus: GameStatus.READY, display: '00:00:00', tableData: []}
   hallFame: IHallFame[] = [];
   interval: number = 0;
   time: number = 0;
   blackAndWhite: boolean = false;
   protected readonly GameStatus = GameStatus;
-
-
-  changeColor() {
-    this.blackAndWhite = !this.blackAndWhite;
-
-  }
 
   ngOnInit(): void {
     if (localStorage.getItem(_localstorage_panel) != null) {
@@ -62,7 +54,6 @@ export class TetrisComponent implements OnInit, OnDestroy {
     }
     if (localStorage.getItem(_localstorage_hall_fame) != null) {
       this.hallFame = JSON.parse(localStorage.getItem(_localstorage_hall_fame));
-      this.scoreData.emit(this.hallFame);
     }
   }
 
@@ -70,6 +61,10 @@ export class TetrisComponent implements OnInit, OnDestroy {
     console.log("destroy")
     this._tetris.actionStop();
     this._tetris.actionReset();
+  }
+
+  changeColor() {
+    this.blackAndWhite = !this.blackAndWhite;
   }
 
   start() {
@@ -111,7 +106,6 @@ export class TetrisComponent implements OnInit, OnDestroy {
 
   onLineCleared() {
     this.panel.points += 100;
-
     this.panel.tableData.push({timestamp: new Date(), actionName: _action_line_cleared});
     if (this.panel.points > this.panel.bestScore) {
       this.panel.bestScore = this.panel.points;

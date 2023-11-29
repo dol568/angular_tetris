@@ -1,8 +1,7 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Output} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from "@angular/forms";
 import {IUser} from "../model/IUser";
-import {AppComponent} from "../app.component";
 import {_localstorage_user} from "../model/_const_vars";
 
 @Component({
@@ -14,7 +13,7 @@ import {_localstorage_user} from "../model/_const_vars";
 })
 export class LoginComponent {
   @Output() formData = new EventEmitter<IUser>();
-  user: IUser= { username: '', email: '' };
+  user: IUser = {username: '', email: ''};
 
   onSubmit(data: IUser) {
     this.user = data;

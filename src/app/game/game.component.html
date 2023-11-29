@@ -1,26 +1,26 @@
 <div class="main d-flex flex-column flex-lg-row align-items-center justify-content-center flex-wrap">
-  <div class="col-md-3 d-flex flex-column align-items-center px-2" style="min-width: 300px">
+  <div class="col-md-3 d-flex flex-column align-items-center px-2 list">
     <h4 class="logo pb-1">TOP 10</h4>
-    <div class="border" style="padding: 1.5%; height: 590px; width: 100%; overflow-y: scroll">
+    <div class="border content" style="overflow-y: scroll">
       <app-hall-of-fame [hallFame]="hallFame"></app-hall-of-fame>
     </div>
   </div>
-  <div class="col-md-2 d-flex flex-column align-items-center px-2" style="width: 150px;">
+  <div class="col-md-2 d-flex flex-column align-items-center px-2 stats">
     <h4 class="logo pb-1">STATS</h4>
-    <div class="border" style="padding: 1.5%; height: 590px; width: 100%">
+    <div class="border content">
       <app-panel [panel]="panel"></app-panel>
     </div>
   </div>
-  <div class="col-md-4 d-flex flex-column align-items-center px-2" style="min-width: 450px">
+  <div class="col-md-4 d-flex flex-column align-items-center px-2 game">
     <h4 class="logo pb-1">GAME</h4>
-    <div style="padding: 1.5%; height: 590px; width: 100%">
+    <div class="content">
       <app-tetris (panelData)="getPanel($event)" (scoreData)="getScores($event)" [user]="user"
                 ></app-tetris>
     </div>
   </div>
-  <div class="col-md-3 d-flex flex-column align-items-center px-2"  style="min-width: 300px">
+  <div class="col-md-3 d-flex flex-column align-items-center px-2 list">
     <h4 class="logo pb-1">HISTORY</h4>
-    <div class="border" style="padding: 1.5%; height: 590px; width: 100%; overflow-y: scroll">
+    <div class="border content" style="overflow-y: scroll">
       <app-list [panel]="panel"></app-list>
     </div>
   </div>
