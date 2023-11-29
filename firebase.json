@@ -3,7 +3,6 @@
     {
       "target": "angularTetris",
       "public": "dist/angular-tetris/browser",
-
       "frameworksBackend": {}
     }
   ]

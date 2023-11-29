@@ -43,22 +43,20 @@ export class TetrisComponent implements OnInit, OnDestroy {
   protected readonly GameStatus = GameStatus;
 
   ngOnInit(): void {
-    if (localStorage.getItem(_localstorage_panel) != null) {
-      this.panel = JSON.parse(localStorage.getItem(_localstorage_panel));
+    const savedPanel = localStorage.getItem(_localstorage_panel);
+    const savedHallFame = localStorage.getItem(_localstorage_hall_fame);
+    if (savedPanel) {
+      this.panel = JSON.parse(savedPanel);
       this.panel.gameStatus = GameStatus.READY;
-      this.panel.points = 0;
-      clearInterval(this.interval);
-      this.time = 0;
-      this.panel.display = this.transform(this.time);
+      this.clearPanel();
       this.savePanel();
     }
-    if (localStorage.getItem(_localstorage_hall_fame) != null) {
-      this.hallFame = JSON.parse(localStorage.getItem(_localstorage_hall_fame));
+    if (savedHallFame) {
+      this.hallFame = JSON.parse(savedHallFame);
     }
   }
 
   ngOnDestroy(): void {
-    console.log("destroy")
     this._tetris.actionStop();
     this._tetris.actionReset();
   }
@@ -88,10 +86,7 @@ export class TetrisComponent implements OnInit, OnDestroy {
   }
 
   reset() {
-    this.panel.points = 0;
-    clearInterval(this.interval);
-    this.time = 0;
-    this.panel.display = this.transform(this.time);
+    this.clearPanel();
     this.panel.tableData.push({timestamp: new Date(), actionName: _action_reset_game});
     this.panel.gameStatus === GameStatus.STARTED
       ? this.panel.gameStatus = GameStatus.STARTED
@@ -110,7 +105,7 @@ export class TetrisComponent implements OnInit, OnDestroy {
     if (this.panel.points > this.panel.bestScore) {
       this.panel.bestScore = this.panel.points;
 
-      const existingEntry = this.hallFame.find(hall => hall.username === this.user.username);
+      const existingEntry = this.hallFame.find(entry => entry.username === this.user.username);
 
       if (existingEntry) {
         existingEntry.bestScore = this.panel.bestScore;
@@ -124,10 +119,7 @@ export class TetrisComponent implements OnInit, OnDestroy {
 
   onGameOver() {
     alert(`You lost. Your score was ${this.panel.points}`)
-    this.panel.points = 0;
-    clearInterval(this.interval);
-    this.time = 0;
-    this.panel.display = this.transform(this.time);
+    this.clearPanel();
     this.panel.tableData.push({timestamp: new Date(), actionName: _action_game_over});
     this.panel.gameStatus = GameStatus.READY;
     this.savePanel();
@@ -145,16 +137,21 @@ export class TetrisComponent implements OnInit, OnDestroy {
       ':' + (seconds < 10 ? '0' + seconds : seconds);
   }
 
+  private clearPanel() {
+    this.panel.points = 0;
+    clearInterval(this.interval);
+    this.time = 0;
+    this.panel.display = this.transform(this.time);
+  }
+
   private savePanel() {
     this.panelData.emit(this.panel);
     localStorage.setItem(_localstorage_panel, JSON.stringify(this.panel));
   }
 
   private saveHighestScore() {
-    console.log(this.hallFame)
     this.hallFame
       .sort((a, b) => b.bestScore - a.bestScore)
-    console.log(this.hallFame)
     this.scoreData.emit(this.hallFame);
     localStorage.setItem(_localstorage_hall_fame, JSON.stringify(this.hallFame));
   }
