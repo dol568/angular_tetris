@@ -103,6 +103,13 @@
             ],
             "scripts": []
           }
+        },
+        "deploy": {
+          "builder": "@angular/fire:deploy",
+          "options": {
+            "version": 2,
+            "browserTarget": "angularTetris:build:production"
+          }
         }
       }
     }

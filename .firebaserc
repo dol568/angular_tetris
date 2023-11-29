@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "angular-tetris": {
+      "hosting": {
+        "angularTetris": [
+          "angular-tetris"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "angular-tetris"
+  }
+}
