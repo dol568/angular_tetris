@@ -13,6 +13,8 @@
         class="form-control"
         name="username"
         [(ngModel)]="user.username"
+        (ngModelChange)="user.username = user.username.trim()"
+        pattern="^[a-zA-Z]+$"
         [class.is-invalid]="username.invalid && username.touched"
       />
       <div *ngIf="username.invalid && (username.dirty || username.touched)"
@@ -20,6 +22,7 @@
         <div *ngIf="username.errors?.['required']">Username is required</div>
         <div *ngIf="username.errors?.['maxlength']">Username cannot exceed 15 characters</div>
         <div *ngIf="username.errors?.['minlength']">Username must be at least 8 characters</div>
+        <div *ngIf="username.errors?.['pattern']">Only characters allowed</div>
       </div>
     </div>
 
