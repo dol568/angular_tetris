@@ -11,7 +11,7 @@
     </tr>
     </thead>
     <tbody>
-    <tr *ngFor="let item of panel.tableData | filter:term | sort:reverse:'timestamp'">
+    <tr *ngFor="let item of panel.tableData | filter:'actionName':term | sort:reverse:'timestamp'">
       <th>{{ item.timestamp | date:'mediumTime' }}</th>
       <th>{{ item.actionName }}</th>
     </tr>

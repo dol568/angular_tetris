@@ -6,7 +6,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class FilterPipe implements PipeTransform {
 
-  transform(value: any, args?: any): any {
+  transform(value: any, field: any, args?: any): any {
 
     if(!value)return null;
     if(!args)return value;
@@ -14,7 +14,7 @@ export class FilterPipe implements PipeTransform {
     args = args.toLowerCase().trim();
 
     return value.filter(function(item){
-      return JSON.stringify(item.actionName).toLowerCase().includes(args);
+      return JSON.stringify(item[field]).toLowerCase().includes(args);
     });
   }
 }
