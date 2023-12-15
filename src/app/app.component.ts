@@ -14,7 +14,6 @@ import {_localstorage_panel, _localstorage_user} from "./model/_const_vars";
   styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit {
-  title = 'angularTetris';
   user: IUser;
 
   ngOnInit(): void {
@@ -23,6 +22,7 @@ export class AppComponent implements OnInit {
 
   getUser(user: IUser) {
     this.user = user;
+    localStorage.setItem(_localstorage_user, JSON.stringify(this.user));
   }
 
   logoutUser() {

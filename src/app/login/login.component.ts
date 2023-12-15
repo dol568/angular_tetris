@@ -18,6 +18,5 @@ export class LoginComponent {
   onSubmit(data: IUser) {
     this.user = data;
     this.formData.emit(this.user);
-    localStorage.setItem(_localstorage_user, JSON.stringify(this.user));
   }
 }
