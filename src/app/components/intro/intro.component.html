@@ -1,0 +1,33 @@
+<ng-container *ngIf="!currentUser(); else loggedIn">
+    <div class="login d-flex flex-column">
+        <ul class="nav nav-tabs justify-content-center" style="font-size: 18px; font-weight: bold">
+            <li class="nav-item">
+                <button class="nav-link"
+                        aria-current="page"
+                        (click)="disableRegister()"
+                        [ngClass]="{'active':!register()}"
+                >Login
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link"
+                        (click)="enableRegister()"
+                        [ngClass]="{'active':register()}"
+                >Register
+                </button>
+            </li>
+        </ul>
+        <div class="row d-flex flex-column mt-3">
+            <app-login (register)="enableRegister()" (formData)="loginUser($event)" *ngIf="!register()"></app-login>
+            <app-register (login)="disableRegister()" (registerData)="registerUser($event)" *ngIf="register()"></app-register>
+        </div>
+    </div>
+</ng-container>
+<ng-template #loggedIn>
+    <div class="flex-column justify-content-center align-items-center d-flex">
+        <h3 class="logo">Welcome back, {{ currentUser()?.username | titlecase }} !</h3>
+        <button (click)="goToGame()" class="btn btn-outline-secondary mt-3" type="button" style="font-size: 24px">
+            Go To Game!
+        </button>
+    </div>
+</ng-template>

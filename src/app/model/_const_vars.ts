@@ -7,3 +7,9 @@ export const _action_paused_game = 'Paused the game';
 export const _action_reset_game = 'Reset the game';
 export const _action_line_cleared = 'Cleared a line';
 export const _action_game_over = 'Game over';
+
+export const _client_home = '';
+export const _client_game = 'game';
+export const _client_notfound = 'not-found';
+
+

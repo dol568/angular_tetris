@@ -1,0 +1,12 @@
+<div
+  class="nav d-flex flex-column flex-lg-row align-items-center justify-content-between mb-3 bg-white border-bottom shadow-sm">
+  <h3 class="logo">Tetris Game</h3>
+  <div class="d-flex align-items-center">
+    <div class="dropdown" *ngIf="currentUser">
+      <button class="btn btn-outline-secondary" type="button"
+        (click)="exit()"><i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
+  </div>
+</div>
+

@@ -1,0 +1,52 @@
+<h3 style="color: #0cabba;">Welcome</h3>
+<hr/>
+<form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+  <div class="mb-3 form-group">
+    <label for="email">Email</label>
+    <input
+      type="text"
+      class="form-control"
+      id="email"
+      formControlName="email"
+      [ngClass]="{'is-invalid':f['email'].touched && !emailValid}"
+    />
+    <div class="invalid-feedback">
+      <span class="text-danger" *ngIf="f['email'].touched && !emailRequiredValid">Email is required</span>
+      <div *ngIf="emailRequiredValid">
+        <div [ngClass]="{ 'text-success': requiresEmailValid, 'text-danger': !requiresEmailValid }">
+          Must a valid email address
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mb-2">
+    <label for="password">Password</label>
+    <input
+            type="password"
+            class="form-control"
+            id="password"
+            name="password"
+            formControlName="password"
+            [ngClass]="{'is-invalid':f['password'].touched && !passwordValid}"
+    />
+    <div class="invalid-feedback">
+            <span class="text-danger"
+                  *ngIf="f['password'].touched && !passwordRequiredValid">Password is required</span>
+    </div>
+  </div>
+
+  <hr class="mb-4"/>
+  <button
+    class="btn btn-lg btn-block"
+    [disabled]="!loginForm.valid"
+    type="submit"
+    style="background-color: #0cabba; color: aliceblue; font-size: 24px"
+  >
+    Start Game
+  </button>
+  <div class="text-center mt-1" style="font-size: 20px;">
+    <p class="small mt-2 pt-1 mb-0" style="font-weight: bold">Don't have an account?
+      <a (click)="register.emit()" style="color: #dc4c64; cursor: pointer">Register</a></p>
+  </div>
+</form>

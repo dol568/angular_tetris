@@ -1,0 +1,27 @@
+.main {
+  width: 90%;
+  margin: auto;
+}
+
+::-webkit-scrollbar {
+  width: 0px;
+  background: transparent; /* make scrollbar transparent */
+}
+
+.content {
+  padding: 1.5%;
+  height: 470px;
+  width: 100%
+}
+
+.game {
+  min-width: 350px;
+}
+
+.list {
+  min-width: 300px;
+}
+
+.stats {
+  min-width: 200px;
+}

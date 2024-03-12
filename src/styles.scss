@@ -42,3 +42,26 @@ tetris-core {
     }
   }
 }
+
+.error-snackbar {
+  border-radius: 5px;
+  background-color: rgb(153, 50, 50) !important;
+  color: beige;
+}
+
+.success-snackbar {
+  border-radius: 5px;
+  background-color: rgb(20, 108, 26) !important;
+  color: beige;
+}
+
+.cdk-global-overlay-wrapper {
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.cdk-overlay-pane {
+  bottom: 25px;
+  right: 25px;
+  position: fixed !important;
+}
