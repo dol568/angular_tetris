@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {Component, Input, signal, WritableSignal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {PanelComponent} from "../panel/panel.component";
 import {IPanel} from "../../../model/IPanel";
@@ -15,10 +15,6 @@ import {FormsModule} from "@angular/forms";
 })
 export class ListComponent {
   @Input() panel: IPanel;
-  reverse: boolean;
   term: string;
-
-  changeOrder() {
-    this.reverse = !this.reverse;
-  }
+  changeOrderSignal: WritableSignal<boolean> = signal<boolean>(false);
 }

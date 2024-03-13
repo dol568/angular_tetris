@@ -1,7 +1,7 @@
 <div class="d-flex flex-row justify-content-start">
   <tetris-core (lineCleared)="onLineCleared()"
                (gameOver)="onGameOver()"
-               [class.black-and-white]="blackAndWhite"
+               [class.black-and-white]="blackAndWhiteSignal()"
                tileSize="20px"
   ></tetris-core>
   <div class="ml-5 d-flex flex-column align-items-center pb-10" style="flex: 1">
@@ -21,12 +21,12 @@
             (click)="reset()"
     >Reset
     </button>
-    <button *ngIf="!blackAndWhite" type="button" class="btn btn-outline-dark btn-lg btn-block"
-            (click)="changeColor()"
+    <button *ngIf="!blackAndWhiteSignal()" type="button" class="btn btn-outline-dark btn-lg btn-block"
+            (click)="blackAndWhiteSignal.set(true)"
     >Black And White
     </button>
-    <button *ngIf="blackAndWhite" type="button" class="btn btn-outline-warning btn-lg btn-block"
-            (click)="changeColor()"
+    <button *ngIf="blackAndWhiteSignal()" type="button" class="btn btn-outline-warning btn-lg btn-block"
+            (click)="blackAndWhiteSignal.set(false)"
     >Color
     </button>
 

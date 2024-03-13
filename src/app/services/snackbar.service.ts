@@ -7,15 +7,15 @@ import {MatSnackBar, MatSnackBarConfig} from "@angular/material/snack-bar";
 export class SnackbarService {
     #snackBar = inject(MatSnackBar);
 
-    public success(message: string, messageClose: string) {
+    public success(message: string, messageClose: string): void {
         this.#getSnack(message, messageClose, 'success-snackbar');
     }
 
-    public error(message: string, messageClose: string) {
+    public error(message: string, messageClose: string): void {
         this.#getSnack(message, messageClose, 'error-snackbar');
     }
 
-    #getSnack(message: string, messageClose: string, panelClass: string) {
+    #getSnack(message: string, messageClose: string, panelClass: string): void {
         const config = new MatSnackBarConfig();
         config.panelClass = [`${panelClass}`];
         config.duration = 5000;

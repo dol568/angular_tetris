@@ -4,14 +4,14 @@
     <thead>
     <tr>
       <th scope="col"
-          (click)="changeOrder()">
-        Timestamp <i [class]="'fa fa-sort-' + (reverse ? 'asc' : 'desc')"></i>
+          (click)="changeOrderSignal.set(changeOrderSignal() === false)">
+        Timestamp <i [class]="'fa fa-sort-' + (changeOrderSignal() ? 'asc' : 'desc')"></i>
       </th>
       <th scope="col">Action</th>
     </tr>
     </thead>
     <tbody>
-    <tr *ngFor="let item of panel.tableData | filter:'actionName':term | sort:reverse:'timestamp'">
+    <tr *ngFor="let item of panel.tableData | filter:'actionName':term | sort:changeOrderSignal():'timestamp'">
       <th>{{ item.timestamp | date:'mediumTime' }}</th>
       <th>{{ item.actionName }}</th>
     </tr>

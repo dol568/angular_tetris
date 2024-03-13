@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {Component, EventEmitter, Input, Output, signal, WritableSignal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {IHallFame} from "../../../model/IHallFame";
 import {SortPipe} from "../../../pipes/sort.pipe";
@@ -12,9 +12,11 @@ import {SortPipe} from "../../../pipes/sort.pipe";
 })
 export class HallOfFameComponent {
   @Input() hallFame: IHallFame[];
-  reverse: boolean;
+  @Output() order = new EventEmitter<void>();
+  changeOrderSignal: WritableSignal<boolean> = signal<boolean>(false);
 
   changeOrder() {
-    this.reverse = !this.reverse;
+    this.changeOrderSignal.set(this.changeOrderSignal() === false);
+    this.order.emit();
   }
 }

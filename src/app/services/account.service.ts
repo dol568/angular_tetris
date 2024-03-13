@@ -22,11 +22,7 @@ export class AccountService {
         }
     }
 
-    isAuthenticated() {
-        return this.#isAuthenticated;
-    }
-
-    login(data: IUser) {
+    public login(data: IUser): void {
         const foundUser = this.users.find(user => user.email === data.email && user.password === data.password);
         if (foundUser) {
             this.#user.set(foundUser);
@@ -37,23 +33,7 @@ export class AccountService {
         }
     }
 
-    loadCurrentUser() {
-        const foundUser = localStorage.getItem('currentUser');
-        if (foundUser) {
-            this.#user.set(JSON.parse(foundUser));
-            this.#isAuthenticated = true;
-        }
-    }
-
-    logout() {
-        localStorage.removeItem('currentUser');
-        localStorage.removeItem('panelData');
-        this.#user.set(undefined);
-        this.#isAuthenticated = false;
-        this.#router.navigate([_client_home]);
-    }
-
-    register(data: IUser) {
+    public register(data: IUser): void {
         const index = this.users.findIndex(user => user.username === data.username || user.email === data.email);
         if (index === -1) {
             this.users.push(data);
@@ -64,5 +44,25 @@ export class AccountService {
         } else {
             this.#snackBarService.error(`User with username '${data.username}' or email '${data.email}' already exists!`, '');
         }
+    }
+
+    public loadCurrentUser(): void {
+        const foundUser = localStorage.getItem('currentUser');
+        if (foundUser) {
+            this.#user.set(JSON.parse(foundUser));
+            this.#isAuthenticated = true;
+        }
+    }
+
+    public isAuthenticated(): boolean {
+        return this.#isAuthenticated;
+    }
+
+    public logout(): void {
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('panelData');
+        this.#user.set(undefined);
+        this.#isAuthenticated = false;
+        this.#router.navigate([_client_home]);
     }
 }

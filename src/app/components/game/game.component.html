@@ -9,9 +9,9 @@
 
     <div class="row mt-3 mx-5">
         <div class="col-md-3 d-flex flex-column align-items-center px-2 list">
-            <h4 class="logo pb-1">TOP 10</h4>
+            <h4 class="logo pb-1">{{ title() }}</h4>
             <div class="border content" style="overflow-y: scroll">
-                <app-hall-of-fame [hallFame]="hallFame()"></app-hall-of-fame>
+                <app-hall-of-fame [hallFame]="hallFame()" (order)="getOrder()"></app-hall-of-fame>
             </div>
         </div>
         <div class="col-md-2 d-flex flex-column align-items-center px-2 stats">
@@ -27,7 +27,8 @@
                         [hallFame]="hallFame()"
                         [panel]="panel()"
                         [currentUser]="currentUser()"
-                        (panelData)="getPanel($event)" (scoreData)="getScores($event)"
+                        (panelData)="getPanel($event)"
+                        (scoreData)="getScores($event)"
                         (gameOverScore)="getGameOverScore($event)">
                 </app-tetris>
             </div>

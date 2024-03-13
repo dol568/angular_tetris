@@ -42,7 +42,7 @@
             <span class="text-danger" *ngIf="f['email'].touched && !emailRequiredValid">Email is required</span>
             <div *ngIf="emailRequiredValid">
                 <div [ngClass]="{ 'text-success': requiresEmailValid, 'text-danger': !requiresEmailValid }">
-                    Must a valid email address
+                    Must be a valid email address
                 </div>
             </div>
         </div>

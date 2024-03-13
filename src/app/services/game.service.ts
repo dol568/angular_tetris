@@ -17,7 +17,7 @@ export class GameService {
   panel: Signal<IPanel> = computed(this.#panel);
   hallFame: Signal<IHallFame[]> = computed(this.#hallFame);
 
-  public loadData() {
+  public loadData(): void {
     const foundPanelData = localStorage.getItem('panelData');
     const foundHallFameData = localStorage.getItem('hallFame');
     if (foundPanelData) {
@@ -32,12 +32,12 @@ export class GameService {
     }
   }
 
-  public setPanel(data: IPanel) {
+  public setPanel(data: IPanel): void {
     localStorage.setItem('panelData', JSON.stringify(data));
     this.#panel.set(data);
   }
 
-  public setHighScores(data: IHallFame[]) {
+  public setHighScores(data: IHallFame[]): void {
     localStorage.setItem('hallFame', JSON.stringify(data));
     this.#hallFame.set(data);
   }

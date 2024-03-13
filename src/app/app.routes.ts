@@ -1,6 +1,5 @@
 import {Routes} from "@angular/router";
 import {_client_game, _client_notfound} from "./model/_const_vars";
-import {canActivate} from "@angular/fire/auth-guard";
 import {authGuard} from "./guards/auth.guard";
 
 export const routes: Routes = [

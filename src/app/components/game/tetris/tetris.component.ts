@@ -5,8 +5,8 @@ import {
     Input,
     OnDestroy,
     OnInit,
-    Output,
-    ViewChild
+    Output, signal,
+    ViewChild, WritableSignal
 } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {TetrisCoreComponent, TetrisCoreModule} from "ngx-tetris";
@@ -41,9 +41,12 @@ export class TetrisComponent implements OnInit, OnDestroy {
     @Input() panel: IPanel;
     @Input() hallFame: IHallFame[];
     interval: number = 0;
-    time: number = 0;
-    blackAndWhite: boolean = false;
     protected readonly GameStatus = GameStatus;
+
+    time: WritableSignal<number> = signal<number>(0);
+    blackAndWhiteSignal: WritableSignal<boolean> = signal<boolean>(false);
+
+    bbc = input.required<string>
 
     ngOnInit(): void {
         this.panel.gameStatus = GameStatus.READY;
@@ -54,31 +57,27 @@ export class TetrisComponent implements OnInit, OnDestroy {
         this._tetris.actionReset();
     }
 
-    changeColor() {
-        this.blackAndWhite = !this.blackAndWhite;
-    }
-
-    start() {
+    public start(): void {
         this.panel.gameStatus = GameStatus.STARTED;
         this.interval = setInterval(() => {
-            this.time++;
-            this.panel.display = this.#transform(this.time);
+            this.time.update(time => time + 1);
+            this.panel.display = this.#transform(this.time());
         }, 1000);
         this.panel.tableData.push({timestamp: new Date(), actionName: _action_started_game});
         this.#savePanel();
         this._tetris.actionStart();
     }
 
-    stop() {
+    public stop(): void {
         this.panel.gameStatus = GameStatus.PAUSED;
         clearInterval(this.interval);
-        this.panel.display = this.#transform(this.time);
+        this.panel.display = this.#transform(this.time());
         this.panel.tableData.push({timestamp: new Date(), actionName: _action_paused_game});
         this.#savePanel();
         this._tetris.actionStop();
     }
 
-    reset() {
+    public reset(): void {
         this.#clearPanel();
         this.panel.tableData.push({timestamp: new Date(), actionName: _action_reset_game});
         this.panel.gameStatus === GameStatus.STARTED
@@ -92,7 +91,7 @@ export class TetrisComponent implements OnInit, OnDestroy {
 
     }
 
-    onLineCleared() {
+    public onLineCleared(): void {
         this.panel.points += 100;
         this.panel.tableData.push({timestamp: new Date(), actionName: _action_line_cleared});
         if (this.panel.points > this.panel.bestScore) {
@@ -107,12 +106,12 @@ export class TetrisComponent implements OnInit, OnDestroy {
             } else {
                 this.hallFame.push({username: this.currentUser.username, bestScore: this.panel.bestScore});
             }
-            this.saveHighestScore();
+            this.#saveHighestScore();
         }
         this.#savePanel();
     }
 
-    onGameOver() {
+    public onGameOver(): void {
         this.gameOverScore.emit(this.panel.points)
         this.#clearPanel();
         this.panel.tableData.push({timestamp: new Date(), actionName: _action_game_over});
@@ -132,18 +131,18 @@ export class TetrisComponent implements OnInit, OnDestroy {
             ':' + (seconds < 10 ? '0' + seconds : seconds);
     }
 
-    #clearPanel() {
+    #clearPanel(): void {
         this.panel.points = 0;
         clearInterval(this.interval);
-        this.time = 0;
-        this.panel.display = this.#transform(this.time);
+        this.time.set(0);
+        this.panel.display = this.#transform(this.time());
     }
 
-    #savePanel() {
+    #savePanel(): void {
         this.panelData.emit(this.panel);
     }
 
-    private saveHighestScore() {
+    #saveHighestScore(): void {
         this.hallFame.sort((a, b) => b.bestScore - a.bestScore);
         this.scoreData.emit(this.hallFame);
     }

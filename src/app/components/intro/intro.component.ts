@@ -21,23 +21,23 @@ export class IntroComponent {
   #register: WritableSignal<boolean> = signal<boolean>(false);
   register: Signal<boolean> = computed(this.#register);
 
-  registerUser(data: IUser) {
+  public registerUser(data: IUser): void {
     this.#accountService.register(data);
   }
 
-  loginUser(data: IUser) {
+  public loginUser(data: IUser): void {
     this.#accountService.login(data);
   }
 
-  goToGame() {
+  public goToGame(): void {
     this.#router.navigate(['/game']);
   }
 
-  enableRegister() {
+  public enableRegister(): void {
     this.#register.set(true);
   }
 
-  disableRegister() {
+  public disableRegister(): void {
     this.#register.set(false);
   }
 }

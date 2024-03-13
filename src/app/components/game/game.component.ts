@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, Signal} from '@angular/core';
+import {Component, inject, OnInit, signal, Signal, WritableSignal} from '@angular/core';
 import {CommonModule, Location} from '@angular/common';
 import {PanelComponent} from "./panel/panel.component";
 import {ListComponent} from "./list/list.component";
@@ -27,6 +27,7 @@ export class GameComponent implements OnInit {
     panel: Signal<IPanel> = this.#gameService.panel;
     hallFame: Signal<IHallFame[]> = this.#gameService.hallFame;
     currentUser: Signal<IUser> = this.#accountService.user;
+    title: WritableSignal<string> = signal<string>('TOP 10');
 
     ngOnInit(): void {
         this.#gameService.loadData();
@@ -42,10 +43,14 @@ export class GameComponent implements OnInit {
     }
 
     getGameOverScore(gameOverScore: number): void {
-        this.#snackBarService.error(`Game over. You scored ${gameOverScore}`, '');
+        this.#snackBarService.error(`Game over. You scored: ${gameOverScore} points`, '');
     }
 
     goBack(): void {
         this.#location.back();
+    }
+
+    getOrder() {
+        this.title.set(this.title() === 'TOP 10' ? 'LOWEST 10' : 'TOP 10');
     }
 }

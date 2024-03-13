@@ -18,8 +18,16 @@
             </li>
         </ul>
         <div class="row d-flex flex-column mt-3">
-            <app-login (register)="enableRegister()" (formData)="loginUser($event)" *ngIf="!register()"></app-login>
-            <app-register (login)="disableRegister()" (registerData)="registerUser($event)" *ngIf="register()"></app-register>
+            <app-login
+                    *ngIf="!register()"
+                    (register)="enableRegister()"
+                    (formData)="loginUser($event)"
+            ></app-login>
+            <app-register
+                    *ngIf="register()"
+                    (login)="disableRegister()"
+                    (registerData)="registerUser($event)"
+            ></app-register>
         </div>
     </div>
 </ng-container>
