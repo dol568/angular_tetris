@@ -1,7 +1,7 @@
 import {
     Component,
     EventEmitter,
-    HostListener,
+    HostListener, input,
     Input,
     OnDestroy,
     OnInit,
@@ -46,7 +46,7 @@ export class TetrisComponent implements OnInit, OnDestroy {
     time: WritableSignal<number> = signal<number>(0);
     blackAndWhiteSignal: WritableSignal<boolean> = signal<boolean>(false);
 
-    bbc = input.required<string>
+    bbc = input.required<string>;
 
     ngOnInit(): void {
         this.panel.gameStatus = GameStatus.READY;
