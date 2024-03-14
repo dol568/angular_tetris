@@ -1,100 +1,181 @@
-<h3 style="color: #0cabba;">Sign Up</h3>
-<hr/>
+<h3 style="color: #0cabba">Sign Up</h3>
+<hr />
 <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-    <div class="mb-3 form-group">
-        <label for="username">Username</label>
-        <input
-                type="text"
-                class="form-control"
-                id="username"
-                formControlName="username"
-                [ngClass]="{'is-invalid':f['username'].touched && !usernameValid}"
-        />
-        <div class="invalid-feedback">
-            <span class="text-danger" *ngIf="f['username'].touched && !usernameRequiredValid">Username is required</span>
-            <div *ngIf="usernameRequiredValid">
-                <div [ngClass]="{ 'text-success': usernameMinLengthValid, 'text-danger': !usernameMinLengthValid }">
-                    Must be at least 8 characters long
-                </div>
-                <div [ngClass]="{ 'text-success': usernameMaxLengthValid, 'text-danger': !usernameMaxLengthValid }">
-                    Must be at most 30 characters long
-                </div>
-                <div [ngClass]="{ 'text-success': usernameRequiresUppercaseValid, 'text-danger': !usernameRequiresUppercaseValid }">
-                    Must contain at least 1 uppercase character
-                </div>
-                <div [ngClass]="{ 'text-success': usernameRequiresLowercaseValid, 'text-danger': !usernameRequiresLowercaseValid }">
-                    Must contain at least 1 lowercase character
-                </div>
-            </div>
+  <div class="mb-3 form-group">
+    <label for="username">Username</label>
+    <input
+      type="text"
+      class="form-control"
+      id="username"
+      formControlName="username"
+      [ngClass]="{ 'is-invalid': f['username'].touched && !usernameValid }"
+    />
+    <div class="invalid-feedback">
+      @if (f['username'].touched && !usernameRequiredValid) {
+      <span class="text-danger">Username is required</span>
+      } @if (usernameRequiredValid) {
+      <div>
+        <div
+          [ngClass]="{
+            'text-success': usernameMinLengthValid,
+            'text-danger': !usernameMinLengthValid
+          }"
+        >
+          Must be at least 8 characters long
         </div>
-    </div>
-
-    <div class="mb-3 form-group">
-        <label for="email">Email</label>
-        <input
-                type="text"
-                class="form-control"
-                id="email"
-                formControlName="email"
-                [ngClass]="{'is-invalid':f['email'].touched && !emailValid}"
-        />
-        <div class="invalid-feedback">
-            <span class="text-danger" *ngIf="f['email'].touched && !emailRequiredValid">Email is required</span>
-            <div *ngIf="emailRequiredValid">
-                <div [ngClass]="{ 'text-success': requiresEmailValid, 'text-danger': !requiresEmailValid }">
-                    Must be a valid email address
-                </div>
-            </div>
+        <div
+          [ngClass]="{
+            'text-success': usernameMaxLengthValid,
+            'text-danger': !usernameMaxLengthValid
+          }"
+        >
+          Must be at most 30 characters long
         </div>
-    </div>
-
-    <div class="mb-2">
-        <label for="password">Password</label>
-        <input
-                type="password"
-                class="form-control"
-                id="password"
-                name="password"
-                formControlName="password"
-                [ngClass]="{'is-invalid':f['password'].touched && !passwordValid}"
-        />
-        <div class="invalid-feedback">
-            <span class="text-danger"
-                  *ngIf="f['password'].touched && !passwordRequiredValid">Password is required</span>
-            <div *ngIf="passwordRequiredValid">
-                <div [ngClass]="{ 'text-success': passwordMinLengthValid, 'text-danger': !passwordMinLengthValid }">
-                    Must be at least 8 characters long
-                </div>
-                <div [ngClass]="{ 'text-success': passwordMaxLengthValid, 'text-danger': !passwordMaxLengthValid }">
-                    Must be at most 30 characters long
-                </div>
-                <div [ngClass]="{ 'text-success': passwordRequiresDigitValid, 'text-danger': !passwordRequiresDigitValid }">
-                    Must contain at least 1 digit
-                </div>
-                <div [ngClass]="{ 'text-success': passwordRequiresUppercaseValid, 'text-danger': !passwordRequiresUppercaseValid }">
-                    Must contain at least 1 uppercase character
-                </div>
-                <div [ngClass]="{ 'text-success': passwordRequiresLowercaseValid, 'text-danger': !passwordRequiresLowercaseValid }">
-                    Must contain at least 1 lowercase character
-                </div>
-                <div [ngClass]="{ 'text-success': passwordRequiresSpecialCharsValid, 'text-danger': !passwordRequiresSpecialCharsValid }">
-                    Must contain at least 1 special character
-                </div>
-            </div>
+        <div
+          [ngClass]="{
+            'text-success': usernameRequiresUppercaseValid,
+            'text-danger': !usernameRequiresUppercaseValid
+          }"
+        >
+          Must contain at least 1 uppercase character
         </div>
+        <div
+          [ngClass]="{
+            'text-success': usernameRequiresLowercaseValid,
+            'text-danger': !usernameRequiresLowercaseValid
+          }"
+        >
+          Must contain at least 1 lowercase character
+        </div>
+      </div>
+      }
     </div>
+  </div>
 
-    <hr class="mb-4"/>
-    <button
-            class="btn btn-lg btn-block"
-            [disabled]="!registerForm.valid"
-            type="submit"
-            style="background-color: #0cabba; color: aliceblue; font-size: 24px"
-    >
-        Sign Up
-    </button>
-    <div class="text-center mt-1" style="font-size: 20px;">
-        <p class="small mt-2 pt-1 mb-0" style="font-weight: bold">Already have an account?
-            <a (click)="login.emit()" style="color: #dc4c64; cursor: pointer">Login</a></p>
+  <div class="mb-3 form-group">
+    <label for="email">Email</label>
+    <input
+      type="text"
+      class="form-control"
+      id="email"
+      formControlName="email"
+      [ngClass]="{ 'is-invalid': f['email'].touched && !emailValid }"
+    />
+    <div class="invalid-feedback">
+      @if (f['email'].touched && !emailRequiredValid) {
+      <span class="text-danger">Email is required</span>
+      } @if (emailRequiredValid) {
+      <div>
+        <div
+          [ngClass]="{
+            'text-success': requiresEmailValid,
+            'text-danger': !requiresEmailValid
+          }"
+        >
+          Must be a valid email address
+        </div>
+      </div>
+      }
     </div>
+  </div>
+
+  <div class="mb-2">
+    <div class="form-group">
+      <label for="password">Password</label>
+      <div class="input-group">
+        <input
+          [type]="type()"
+          class="form-control"
+          id="password"
+          name="password"
+          formControlName="password"
+          [ngClass]="{ 'is-invalid': f['password'].touched && !passwordValid }"
+        />
+        <div class="input-group-append">
+          <span class="input-group-text">
+            <span
+              (click)="hideShowPass()"
+              class="fa"
+              [ngClass]="{ 'fa-eye': isText(), 'fa-eye-slash': !isText() }"
+            >
+            </span>
+          </span>
+        </div>
+        <div class="invalid-feedback">
+          @if (f['password'].touched && !passwordRequiredValid) {
+          <span class="text-danger">Password is required</span>
+          } @if (passwordRequiredValid) {
+          <div>
+            <div
+              [ngClass]="{
+                'text-success': passwordMinLengthValid,
+                'text-danger': !passwordMinLengthValid
+              }"
+            >
+              Must be at least 8 characters long
+            </div>
+            <div
+              [ngClass]="{
+                'text-success': passwordMaxLengthValid,
+                'text-danger': !passwordMaxLengthValid
+              }"
+            >
+              Must be at most 30 characters long
+            </div>
+            <div
+              [ngClass]="{
+                'text-success': passwordRequiresDigitValid,
+                'text-danger': !passwordRequiresDigitValid
+              }"
+            >
+              Must contain at least 1 digit
+            </div>
+            <div
+              [ngClass]="{
+                'text-success': passwordRequiresUppercaseValid,
+                'text-danger': !passwordRequiresUppercaseValid
+              }"
+            >
+              Must contain at least 1 uppercase character
+            </div>
+            <div
+              [ngClass]="{
+                'text-success': passwordRequiresLowercaseValid,
+                'text-danger': !passwordRequiresLowercaseValid
+              }"
+            >
+              Must contain at least 1 lowercase character
+            </div>
+            <div
+              [ngClass]="{
+                'text-success': passwordRequiresSpecialCharsValid,
+                'text-danger': !passwordRequiresSpecialCharsValid
+              }"
+            >
+              Must contain at least 1 special character
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="mb-4" />
+  <button
+    class="btn btn-lg btn-block"
+    [disabled]="!registerForm.valid"
+    type="submit"
+    style="background-color: #0cabba; color: aliceblue; font-size: 24px"
+  >
+    Sign Up
+  </button>
+  <div class="text-center mt-1" style="font-size: 20px">
+    <p class="small mt-2 pt-1 mb-0" style="font-weight: bold">
+      Already have an account?
+      <a (click)="login.emit()" style="color: #dc4c64; cursor: pointer"
+        >Login</a
+      >
+    </p>
+  </div>
 </form>

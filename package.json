@@ -15,7 +15,7 @@
     "@angular/common": "^17.2.4",
     "@angular/compiler": "^17.2.4",
     "@angular/core": "^17.2.4",
-    "@angular/fire": "^17.0.0-next.0",
+    "@angular/fire": "^17.0.1",
     "@angular/forms": "^17.2.4",
     "@angular/material": "^17.2.2",
     "@angular/platform-browser": "^17.2.4",

@@ -1,20 +1,28 @@
 import { Pipe, PipeTransform } from '@angular/core';
+import { TableData } from '../model/Panel';
 
 @Pipe({
   name: 'filter',
-  standalone: true
+  standalone: true,
 })
 export class FilterPipe implements PipeTransform {
+  transform(
+    values: TableData[],
+    field: keyof TableData,
+    term: string
+  ): TableData[] {
+    if (!values) {
+      return [];
+    }
 
-  transform(value: any, field: any, args?: any): any {
+    if (!term) {
+      return values;
+    }
 
-    if(!value)return null;
-    if(!args)return value;
+    term = term.toLowerCase().trim();
 
-    args = args.toLowerCase().trim();
-
-    return value.filter(function(item){
-      return JSON.stringify(item[field]).toLowerCase().includes(args);
-    });
+    return [...values].filter((value) =>
+      value[field].toString().toLowerCase().includes(term)
+    );
   }
 }

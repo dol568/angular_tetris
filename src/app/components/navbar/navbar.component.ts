@@ -1,19 +1,18 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {IUser} from "../../model/IUser";
+import {Component, EventEmitter, InputSignal, Output, input} from '@angular/core';
+import {User} from "../../model/User";
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss'
 })
 export class NavbarComponent {
-  @Input() currentUser: IUser;
+  currentUser: InputSignal<User> = input.required<User>();
   @Output() logout: EventEmitter<void> = new EventEmitter<void>();
 
-  public exit() {
+  public exit(): void {
       this.logout.emit();
   }
 }

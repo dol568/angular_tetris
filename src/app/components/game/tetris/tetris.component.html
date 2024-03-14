@@ -1,38 +1,61 @@
 <div class="d-flex flex-row justify-content-start">
-  <tetris-core (lineCleared)="onLineCleared()"
-               (gameOver)="onGameOver()"
-               [class.black-and-white]="blackAndWhiteSignal()"
-               tileSize="20px"
+  <tetris-core
+    (lineCleared)="onLineCleared()"
+    (gameOver)="onGameOver()"
+    [class.black-and-white]="blackAndWhiteSignal()"
+    tileSize="20px"
   ></tetris-core>
   <div class="ml-5 d-flex flex-column align-items-center pb-10" style="flex: 1">
-    <button type="button" class="btn btn-outline-success btn-lg btn-block"
-            [disabled]="this.panel.gameStatus === GameStatus.STARTED"
-            (click)="start()"
-    >Start
+    <button
+      type="button"
+      class="btn btn-outline-success btn-lg btn-block"
+      [disabled]="this.panel.gameStatus === GameStatus.STARTED"
+      (click)="start()"
+    >
+      Start
     </button>
-    <button type="button" class="btn btn-outline-danger btn-lg btn-block"
-            [disabled]="this.panel.gameStatus === GameStatus.PAUSED
-            || this.panel.gameStatus === GameStatus.READY"
-            (click)="stop()"
-    >Stop
+    <button
+      type="button"
+      class="btn btn-outline-danger btn-lg btn-block"
+      [disabled]="
+        this.panel.gameStatus === GameStatus.PAUSED ||
+        this.panel.gameStatus === GameStatus.READY
+      "
+      (click)="stop()"
+    >
+      Stop
     </button>
-    <button type="button" class="btn btn-outline-info btn-lg btn-block"
-            [disabled]="this.panel.gameStatus === GameStatus.READY"
-            (click)="reset()"
-    >Reset
+    <button
+      type="button"
+      class="btn btn-outline-info btn-lg btn-block"
+      [disabled]="this.panel.gameStatus === GameStatus.READY"
+      (click)="reset()"
+    >
+      Reset
     </button>
-    <button *ngIf="!blackAndWhiteSignal()" type="button" class="btn btn-outline-dark btn-lg btn-block"
-            (click)="blackAndWhiteSignal.set(true)"
-    >Black And White
+    @if (!blackAndWhiteSignal()) {
+    <button
+      type="button"
+      class="btn btn-outline-dark btn-lg btn-block"
+      (click)="blackAndWhiteSignal.set(true)"
+    >
+      Black And White
     </button>
-    <button *ngIf="blackAndWhiteSignal()" type="button" class="btn btn-outline-warning btn-lg btn-block"
-            (click)="blackAndWhiteSignal.set(false)"
-    >Color
+    } @else {
+    <button
+      type="button"
+      class="btn btn-outline-warning btn-lg btn-block"
+      (click)="blackAndWhiteSignal.set(false)"
+    >
+      Color
     </button>
+    }
 
     <div class="d-flex align-items-center mt-auto">
       <a (click)="left()"><i class="fas fa-angle-left icon"></i></a>
-      <a (click)="rotate()" class="mr-3 ml-3"><i class="fas fa-sync-alt rotate"></i></a>
+      <a (click)="rotate()" class="mr-3 ml-3"
+        ><i class="fas fa-sync-alt rotate"></i
+      ></a>
       <a (click)="right()"><i class="fas fa-angle-right icon"></i></a>
     </div>
 

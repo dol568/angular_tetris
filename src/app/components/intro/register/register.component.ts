@@ -1,26 +1,30 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, WritableSignal, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
-import {RouterLink} from "@angular/router";
-import {IUser} from "../../../model/IUser";
-import {FormFieldValidators} from "../../../model/formFieldValidators";
+import {
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { User } from '../../../model/User';
+import { FormFieldValidators } from '../../../model/formFieldValidators';
+import { _emailOnly } from '../../../model/_const_vars';
 
 @Component({
   selector: 'app-register',
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink],
   templateUrl: './register.component.html',
-  styleUrl: './register.component.scss'
+  styleUrl: './register.component.scss',
 })
 export class RegisterComponent implements OnInit {
   @Output() login = new EventEmitter<void>();
-  @Output() registerData = new EventEmitter<IUser>();
+  @Output() registerData = new EventEmitter<User>();
   registerForm: FormGroup;
-  readonly emailOnly = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
-
-  onSubmit(): void {
-    this.registerData.emit(this.registerForm.value);
-  }
+  isText: WritableSignal<boolean> = signal<boolean>(false);
+  type: WritableSignal<string> = signal<string>('password');
 
   ngOnInit(): void {
     this.registerForm = new FormGroup({
@@ -29,28 +33,52 @@ export class RegisterComponent implements OnInit {
           Validators.required,
           Validators.minLength(8),
           Validators.maxLength(30),
-          FormFieldValidators.patternValidator(new RegExp("(?=.*[A-Z])"), {requiresUppercase: true}),
-          FormFieldValidators.patternValidator(new RegExp("(?=.*[a-z])"), {requiresLowercase: true})
-        ])
+          FormFieldValidators.patternValidator(new RegExp('(?=.*[A-Z])'), {
+            requiresUppercase: true,
+          }),
+          FormFieldValidators.patternValidator(new RegExp('(?=.*[a-z])'), {
+            requiresLowercase: true,
+          }),
+        ]),
       ]),
       email: new FormControl('', [
         Validators.compose([
           Validators.required,
-          FormFieldValidators.patternValidator(this.emailOnly, {requiresEmail: true})
-        ])
+          FormFieldValidators.patternValidator(_emailOnly, {
+            requiresEmail: true,
+          }),
+        ]),
       ]),
-      password: new FormControl('',
-          Validators.compose([
-            Validators.required,
-            Validators.minLength(8),
-            Validators.maxLength(30),
-            FormFieldValidators.patternValidator(new RegExp("(?=.*[0-9])"), {requiresDigit: true}),
-            FormFieldValidators.patternValidator(new RegExp("(?=.*[A-Z])"), {requiresUppercase: true}),
-            FormFieldValidators.patternValidator(new RegExp("(?=.*[a-z])"), {requiresLowercase: true}),
-            FormFieldValidators.patternValidator(new RegExp("(?=.*[$@^!%*?&])"), {requiresSpecialChars: true})
-          ])
-      )
-    })
+      password: new FormControl(
+        '',
+        Validators.compose([
+          Validators.required,
+          Validators.minLength(8),
+          Validators.maxLength(30),
+          FormFieldValidators.patternValidator(new RegExp('(?=.*[0-9])'), {
+            requiresDigit: true,
+          }),
+          FormFieldValidators.patternValidator(new RegExp('(?=.*[A-Z])'), {
+            requiresUppercase: true,
+          }),
+          FormFieldValidators.patternValidator(new RegExp('(?=.*[a-z])'), {
+            requiresLowercase: true,
+          }),
+          FormFieldValidators.patternValidator(new RegExp('(?=.*[$@^!%*?&])'), {
+            requiresSpecialChars: true,
+          }),
+        ])
+      ),
+    });
+  }
+
+  onSubmit(): void {
+    this.registerData.emit(this.registerForm.value);
+  }
+
+  public hideShowPass(): void {
+    this.isText.set(this.isText() === false);
+    this.type.set(this.type() === 'text' ? 'password' : 'text');
   }
 
   get f() {
@@ -74,11 +102,15 @@ export class RegisterComponent implements OnInit {
   }
 
   get usernameRequiresUppercaseValid() {
-    return !this.registerForm.controls['username'].hasError('requiresUppercase');
+    return !this.registerForm.controls['username'].hasError(
+      'requiresUppercase'
+    );
   }
 
   get usernameRequiresLowercaseValid() {
-    return !this.registerForm.controls['username'].hasError('requiresLowercase');
+    return !this.registerForm.controls['username'].hasError(
+      'requiresLowercase'
+    );
   }
 
   get emailValid() {
@@ -110,18 +142,24 @@ export class RegisterComponent implements OnInit {
   }
 
   get passwordRequiresUppercaseValid() {
-    return !this.registerForm.controls['password'].hasError('requiresUppercase');
+    return !this.registerForm.controls['password'].hasError(
+      'requiresUppercase'
+    );
   }
 
   get passwordRequiresLowercaseValid() {
-    return !this.registerForm.controls['username'].hasError('requiresLowercase');
+    return !this.registerForm.controls['username'].hasError(
+      'requiresLowercase'
+    );
   }
 
   get passwordRequiresDigitValid() {
-    return !this.registerForm.controls["password"].hasError("requiresDigit");
+    return !this.registerForm.controls['password'].hasError('requiresDigit');
   }
 
   get passwordRequiresSpecialCharsValid() {
-    return !this.registerForm.controls["password"].hasError("requiresSpecialChars");
+    return !this.registerForm.controls['password'].hasError(
+      'requiresSpecialChars'
+    );
   }
 }

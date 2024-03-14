@@ -1,10 +1,10 @@
-import {Component, Input, signal, WritableSignal} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {PanelComponent} from "../panel/panel.component";
-import {IPanel} from "../../../model/IPanel";
-import {SortPipe} from "../../../pipes/sort.pipe";
-import {FilterPipe} from "../../../pipes/filter.pipe";
-import {FormsModule} from "@angular/forms";
+import { Component, input, InputSignal, signal, WritableSignal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { PanelComponent } from '../panel/panel.component';
+import { TableData } from '../../../model/Panel';
+import { SortPipe } from '../../../pipes/sort.pipe';
+import { FilterPipe } from '../../../pipes/filter.pipe';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-list',
@@ -14,7 +14,7 @@ import {FormsModule} from "@angular/forms";
   styleUrl: './list.component.scss'
 })
 export class ListComponent {
-  @Input() panel: IPanel;
-  term: string;
+  tableData: InputSignal<TableData[]> = input.required<TableData[]>();
   changeOrderSignal: WritableSignal<boolean> = signal<boolean>(false);
+  term: string = '';
 }

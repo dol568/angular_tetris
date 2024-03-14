@@ -1,9 +1,10 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output, WritableSignal, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
-import {IUser} from "../../../model/IUser";
+import {User} from "../../../model/User";
 import {FormFieldValidators} from "../../../model/formFieldValidators";
 import {RouterLink} from "@angular/router";
+import { _emailOnly } from '../../../model/_const_vars';
 
 @Component({
   selector: 'app-login',
@@ -14,20 +15,17 @@ import {RouterLink} from "@angular/router";
 })
 export class LoginComponent implements OnInit {
   @Output() register = new EventEmitter<void>();
-  @Output() formData = new EventEmitter<IUser>();
+  @Output() formData = new EventEmitter<User>();
   loginForm: FormGroup;
-  readonly emailOnly = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
-
-  onSubmit(): void {
-    this.formData.emit(this.loginForm.value);
-  }
-
+  isText: WritableSignal<boolean> = signal<boolean>(false);
+  type: WritableSignal<string> = signal<string>('password');
+  
   ngOnInit(): void {
     this.loginForm = new FormGroup({
       email: new FormControl('', [
         Validators.compose([
           Validators.required,
-          FormFieldValidators.patternValidator(this.emailOnly, {requiresEmail: true})
+          FormFieldValidators.patternValidator(_emailOnly, {requiresEmail: true})
         ])
       ]),
       password: new FormControl('', [
@@ -36,6 +34,15 @@ export class LoginComponent implements OnInit {
         ])
       ])
     })
+  }
+  
+  public onSubmit(): void {
+    this.formData.emit(this.loginForm.value);
+  }
+
+  public hideShowPass(): void {
+    this.isText.set(this.isText() === false);
+    this.type.set(this.type() === 'text' ? 'password' : 'text');
   }
 
   get f() {

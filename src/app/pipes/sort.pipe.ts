@@ -1,4 +1,4 @@
-import {Pipe, PipeTransform} from '@angular/core';
+import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
   name: 'sort',
@@ -6,26 +6,23 @@ import {Pipe, PipeTransform} from '@angular/core';
 })
 export class SortPipe implements PipeTransform {
 
-  transform(array: any, reverse: boolean = false, field: string): any[] {
+  transform(values: any, reverse: boolean = false, field: string): any[] {
 
-    if (!(Array.isArray(array))) {
-      return array;
+    if (!Array.isArray(values)) {
+      return values;
     }
 
-    let sortedArray = array.sort((a: any, b: any) => {
-      if (a[field] < b[field]) {
-        return -1;
-      } else if (a[field] > b[field]) {
-        return 1;
+    return values.sort((a: any, b: any) => {
+
+      if (a[field] instanceof Date && b[field] instanceof Date) {
+        return !reverse ? a[field].getTime() - b[field].getTime() : b[field].getTime() - a[field].getTime();
       } else {
-        return 0;
+        if (reverse) {
+          return a[field] < b[field] ? 1 : a[field] > b[field] ? -1 : 0;
+        } else {
+          return a[field] > b[field] ? 1 : a[field] < b[field] ? -1 : 0;
+        }
       }
     });
-
-    if (reverse) {
-      return sortedArray.reverse();
-    } else {
-      return sortedArray
-    }
   }
 }
