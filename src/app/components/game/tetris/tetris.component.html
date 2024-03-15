@@ -9,7 +9,7 @@
     <button
       type="button"
       class="btn btn-outline-success btn-lg btn-block"
-      [disabled]="this.panel.gameStatus === GameStatus.STARTED"
+      [disabled]="this.gameStatus() === GameStatus.STARTED"
       (click)="start()"
     >
       Start
@@ -18,8 +18,8 @@
       type="button"
       class="btn btn-outline-danger btn-lg btn-block"
       [disabled]="
-        this.panel.gameStatus === GameStatus.PAUSED ||
-        this.panel.gameStatus === GameStatus.READY
+        this.gameStatus() === GameStatus.PAUSED ||
+        this.gameStatus() === GameStatus.READY
       "
       (click)="stop()"
     >
@@ -28,7 +28,7 @@
     <button
       type="button"
       class="btn btn-outline-info btn-lg btn-block"
-      [disabled]="this.panel.gameStatus === GameStatus.READY"
+      [disabled]="this.gameStatus() === GameStatus.READY"
       (click)="reset()"
     >
       Reset

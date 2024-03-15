@@ -1,10 +1,10 @@
 import {
   Component,
   computed,
+  effect,
   EventEmitter,
   HostListener,
   input,
-  Input,
   InputSignal,
   OnChanges,
   OnDestroy,
@@ -31,6 +31,7 @@ import {
   _localstorage_panel,
 } from '../../../model/_const_vars';
 import { CommonModule } from '@angular/common';
+import { interval, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-tetris',
@@ -45,26 +46,45 @@ export class TetrisComponent implements OnInit, OnDestroy, OnChanges {
   @Output() panelData = new EventEmitter<Panel>();
   @Output() scoreData = new EventEmitter<HallFame[]>();
   @Output() gameOverScore = new EventEmitter<number>();
-  @Input() panel: Panel;
-  @Input() hallFame: HallFame[];
   currentUser: InputSignal<User> = input.required<User>();
-  time: WritableSignal<number> = signal<number>(0);
+  panel: InputSignal<Panel> = input.required<Panel>();
+  hallFame: InputSignal<HallFame[]> = input.required<HallFame[]>();
+  #time: WritableSignal<number> = signal<number>(-1);
   blackAndWhiteSignal: WritableSignal<boolean> = signal<boolean>(false);
-  tableData: WritableSignal<TableData[]> = signal<TableData[]>([]);
+  #tableData: WritableSignal<TableData[]> = signal<TableData[]>([]);
+  #points: WritableSignal<number> = signal<number>(undefined);
+  #bestScore: WritableSignal<number> = signal<number>(undefined);
+  gameStatus: WritableSignal<GameStatus> = signal<GameStatus>(undefined);
+  #display: WritableSignal<string> = signal<string>(undefined);
+  #hallFameSignal: WritableSignal<HallFame[]> = signal<HallFame[]>([]);
   panelDataSignal: Signal<Panel> = computed(() => ({
-    ...this.panel,
-    tableData: this.tableData(),
+    points: this.#points(),
+    bestScore: this.#bestScore(),
+    gameStatus: this.gameStatus(),
+    display: this.#display(),
+    tableData: this.#tableData(),
   }));
-  
-  interval: number = 0;
+  #subscription: Subscription;
   readonly GameStatus = GameStatus;
 
+  constructor() {
+    effect(() => {
+      this.panelData.emit(this.panelDataSignal());
+    });
+  }
+
   ngOnInit(): void {
-    this.panel.gameStatus = GameStatus.READY;
+    this.gameStatus.set(GameStatus.READY);
+    this.#clearTimer();
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    this.tableData.set(this.panel?.tableData);
+    this.#points.set(this.panel()?.points);
+    this.#bestScore.set(this.panel()?.bestScore);
+    this.gameStatus.set(this.panel()?.gameStatus);
+    this.#display.set(this.panel()?.display);
+    this.#tableData.set(this.panel()?.tableData);
+    this.#hallFameSignal.set(this.hallFame());
   }
 
   ngOnDestroy(): void {
@@ -73,90 +93,87 @@ export class TetrisComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   public start(): void {
-    this.panel.gameStatus = GameStatus.STARTED;
-    this.interval = window.setInterval(() => {
-      this.time.update((time) => time + 1);
-      this.panel.display = this.#transform(this.time());
-    }, 1000);
+    this.gameStatus.set(GameStatus.STARTED);
 
-    this.tableData.update((values) => [...values, new TableData()]);
+    this.#subscription = interval(1000).subscribe(() => {
+      this.#time.update((time) => time + 1);
+      this.#display.set(this.#transform(this.#time()));
+    });
 
-    this.#savePanel();
+    this.#tableData.update((values) => [...values, new TableData()]);
     this._tetris.actionStart();
   }
 
   public stop(): void {
-    this.panel.gameStatus = GameStatus.PAUSED;
-    clearInterval(this.interval);
-    this.panel.display = this.#transform(this.time());
+    this.gameStatus.set(GameStatus.PAUSED);
+    this.#subscription.unsubscribe();
 
-    this.tableData.update((values) => [
+    this.#tableData.update((values) => [
       ...values,
       new TableData(_action_paused_game),
     ]);
 
-    this.#savePanel();
     this._tetris.actionStop();
   }
 
   public reset(): void {
     this.#clearPanel();
 
-    this.tableData.update((values) => [
+    this.#tableData.update((values) => [
       ...values,
       new TableData(_action_reset_game),
     ]);
 
-    this.panel.gameStatus === GameStatus.STARTED
-      ? (this.panel.gameStatus = GameStatus.STARTED)
-      : (this.panel.gameStatus = GameStatus.READY);
-    this.#savePanel();
-    this._tetris.actionReset();
+    this.gameStatus.set(
+      this.gameStatus() === GameStatus.STARTED
+        ? GameStatus.STARTED
+        : GameStatus.READY
+    );
 
-    this.panel.gameStatus === GameStatus.STARTED
-      ? this.start()
-      : (this.panel.gameStatus = GameStatus.READY);
+    this._tetris.actionReset();
+    this.gameStatus() === GameStatus.STARTED ? this.start() : null;
   }
 
   public onLineCleared(): void {
-    this.panel.points += 100;
-    this.tableData.update((values) => [
+    this.#points.update((points) => points + 100);
+    this.#tableData.update((values) => [
       ...values,
       new TableData(_action_line_cleared),
     ]);
 
-    if (this.panel.points > this.panel.bestScore) {
-      this.panel.bestScore = this.panel.points;
+    if (this.#points() > this.#bestScore()) {
+      this.#bestScore.set(this.#points());
 
-      const existingEntry = this.hallFame.find(
+      const existingEntry = this.#hallFameSignal().find(
         (entry) => entry.username === this.currentUser()?.username
       );
 
       if (existingEntry) {
-        if (existingEntry.bestScore < this.panel.bestScore) {
-          existingEntry.bestScore = this.panel.bestScore;
+        if (existingEntry.hallFameScore < this.#bestScore()) {
+          existingEntry.hallFameScore = this.#bestScore();
         }
       } else {
-        this.hallFame.push(new HallFame(this.currentUser()?.username,
-          this.panel.bestScore)
-        );
+        this.#hallFameSignal.update((values) => {
+          return [
+            ...values,
+            new HallFame(this.currentUser()?.username, this.#bestScore()),
+          ];
+        });
       }
       this.#saveHighestScore();
     }
-    this.#savePanel();
   }
 
   public onGameOver(): void {
-    this.gameOverScore.emit(this.panel.points);
+    this.gameOverScore.emit(this.#points());
     this.#clearPanel();
 
-    this.tableData.update((values) => [
+    this.#tableData.update((values) => [
       ...values,
       new TableData(_action_game_over),
     ]);
 
-    this.panel.gameStatus = GameStatus.READY;
-    this.#savePanel();
+    this.gameStatus.set(GameStatus.READY);
     this._tetris.actionReset();
   }
 
@@ -176,19 +193,19 @@ export class TetrisComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   #clearPanel(): void {
-    this.panel.points = 0;
-    clearInterval(this.interval);
-    this.time.set(0);
-    this.panel.display = this.#transform(this.time());
+    this.#subscription.unsubscribe();
+    this.#clearTimer();
   }
-
-  #savePanel(): void {
-    this.panelData.emit(this.panelDataSignal());
+  
+  #clearTimer(): void {
+    this.#points.set(0);
+    this.#time.set(0);
+    this.#display.set(this.#transform(this.#time()));
   }
 
   #saveHighestScore(): void {
-    this.hallFame.sort((a, b) => b.bestScore - a.bestScore);
-    this.scoreData.emit(this.hallFame);
+    this.#hallFameSignal().sort((a, b) => b.hallFameScore - a.hallFameScore);
+    this.scoreData.emit(this.#hallFameSignal());
   }
 
   public left(): void {

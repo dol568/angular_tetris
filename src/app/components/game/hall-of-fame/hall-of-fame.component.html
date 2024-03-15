@@ -14,12 +14,12 @@
       </tr>
     </thead>
     <tbody>
-      @for (item of hallFameData() | sort:!changeOrderSignal():'bestScore' |
+      @for (item of hallFameData() | sort:!changeOrderSignal():'hallFameScore' |
       slice:0:10; track item; let i = $index) {
       <tr>
         <th>{{ i + 1 }}</th>
         <th>{{ item.username }}</th>
-        <th>{{ item.bestScore }}</th>
+        <th>{{ item.hallFameScore }}</th>
       </tr>
       }
     </tbody>

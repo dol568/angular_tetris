@@ -43,7 +43,7 @@ export class GameService {
     if (foundHallFameData) {
       const parsedData: HallFame[] = JSON.parse(foundHallFameData);
       const hallFameData: HallFame[] = parsedData.map((data) => {
-        return new HallFame(data.username, data.bestScore);
+        return new HallFame(data.username, data.hallFameScore);
       });
       this.#hallFame.set(hallFameData);
     } else {

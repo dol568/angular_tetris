@@ -44,7 +44,6 @@ export class GameComponent implements OnInit {
   ngOnInit(): void {
     this.#gameService.loadData();
     this.#snackBarService.success('Game data retrieved', '');
-    
   }
 
   public getPanel(panel: Panel): void {
