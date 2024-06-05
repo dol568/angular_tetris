@@ -1,15 +1,12 @@
 import {
   Component,
-  computed,
   effect,
   inject,
   OnDestroy,
   OnInit,
-  signal,
   Signal,
-  WritableSignal,
 } from '@angular/core';
-import { CommonModule, Location } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { PanelComponent } from './panel/panel.component';
 import { ListComponent } from './list/list.component';
 import { TetrisComponent } from './tetris/tetris.component';
@@ -20,12 +17,15 @@ import { User } from '../../model/User';
 import { SnackbarService } from '../../services/snackbar.service';
 import { MatGridListModule } from '@angular/material/grid-list';
 import {
+  EMPTY,
   fromEvent,
   map,
   startWith,
   Subject,
+  switchMap,
   takeUntil,
   tap,
+  timer,
 } from 'rxjs';
 import { MatCard } from '@angular/material/card';
 import { MatCardHeader } from '@angular/material/card';
@@ -33,11 +33,7 @@ import { MatCardTitle } from '@angular/material/card';
 import { MatButton } from '@angular/material/button';
 import { MatFabButton } from '@angular/material/button';
 import { MatCardContent } from '@angular/material/card';
-import {
-  ActivatedRoute,
-  ParamMap,
-  RouterOutlet,
-} from '@angular/router';
+import { ActivatedRoute, ParamMap, RouterOutlet } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -77,23 +73,24 @@ import { UpdateTokenDialogComponent } from './update-token-dialog/update-token-d
 })
 export class GameComponent implements OnInit, OnDestroy {
   #destroySubject$: Subject<void> = new Subject<void>();
-  #accountService = inject(AccountService);
-  #gameService = inject(GameService);
-  #snackBarService = inject(SnackbarService);
-  #activatedRoute = inject(ActivatedRoute);
-  params: Signal<ParamMap> = toSignal(this.#activatedRoute.paramMap);
+  #accountService: AccountService = inject(AccountService);
+  #gameService: GameService = inject(GameService);
+  #snackBarService: SnackbarService = inject(SnackbarService);
+  #activatedRoute: ActivatedRoute = inject(ActivatedRoute);
 
-  gameType;
-  color;
+  params: Signal<ParamMap> = toSignal(this.#activatedRoute.paramMap);
 
   panel: Signal<Panel> = this.#gameService.panel;
   currentUser: Signal<User> = this.#accountService.user;
 
-  columns;
-  colspan1;
-  colspan2;
-  colspan3;
-  rowHeight;
+  gameType: string;
+  color: string;
+
+  columns: number;
+  colspan1: number;
+  colspan2: number;
+  colspan3: number;
+  rowHeight: string;
 
   constructor(public dialog: MatDialog) {
     effect(() => {
@@ -118,7 +115,8 @@ export class GameComponent implements OnInit, OnDestroy {
     fromEvent(window, 'resize')
       .pipe(
         map((event) => (event.target as any).innerWidth),
-        startWith(window.innerWidth)
+        startWith(window.innerWidth),
+        takeUntil(this.#destroySubject$)
       )
       .subscribe((width) => {
         this.rowHeight = '39rem';
@@ -150,41 +148,68 @@ export class GameComponent implements OnInit, OnDestroy {
     this.#gameService.setPanel(panel);
   }
 
-  public setColor(color: string) {
+  public setColor(color: string): void {
     this.#accountService.updateColor({ ...this.currentUser(), color });
   }
 
   public getGameOverScore(gameOverScore: number): void {
     if (this.currentUser()?.id) {
-
       this.#gameService
         .postScoreOnGameOver(gameOverScore, this.currentUser(), this.gameType)
-        .subscribe(() => {
-          this.#snackBarService.openSnackBar(
-            `Game over. You scored: ${gameOverScore} points`
-          );
+        .pipe(
+          switchMap(() =>
+            timer(500).pipe(
+              switchMap(() => this.#gameService.getScores(this.gameType)),
+              takeUntil(this.#destroySubject$)
+            )
+          )
+        )
+        .subscribe({
+          next: () =>
+            this.#snackBarService.openSnackBar(
+              `Game over. You scored: ${gameOverScore} points`
+            ),
+          error: (err) => console.error(err),
         });
     } else {
-
-      this.openDialog(gameOverScore)
+      this.openDialog(gameOverScore);
     }
   }
 
-  openDialog(gameOverScore: number): void {
+  public openDialog(gameOverScore: number): void {
     const dialogRef = this.dialog.open(UpdateTokenDialogComponent, {});
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result?.id) {
-        this.#gameService
-        .postScoreOnGameOver(gameOverScore, {...this.currentUser(), id: result.id}, this.gameType)
-        .subscribe(() => {
+    dialogRef
+      .afterClosed()
+      .pipe(
+        switchMap((result) => {
+          if (result?.id) {
+            return this.#gameService
+              .postScoreOnGameOver(
+                gameOverScore,
+                { ...this.currentUser(), id: result.id },
+                this.gameType
+              )
+              .pipe(
+                switchMap(() =>
+                  timer(500).pipe(
+                    switchMap(() => this.#gameService.getScores(this.gameType)),
+                    takeUntil(this.#destroySubject$)
+                  )
+                )
+              );
+          } else {
+            this.#snackBarService.openSnackBar('Your score was not sent');
+            return EMPTY;
+          }
+        })
+      )
+      .subscribe({
+        next: () =>
           this.#snackBarService.openSnackBar(
             `Game over. You scored: ${gameOverScore} points`
-          );
-        });
-      } else {
-        this.#snackBarService.openSnackBar('Your score was not sent');
-      }
-    });
+          ),
+        error: (err) => console.error(err),
+      });
   }
 }

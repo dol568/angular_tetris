@@ -9,7 +9,7 @@ import {Router} from "@angular/router";
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const snackbar = inject(SnackbarService);
-  let errorMessage = '';
+  let errorMessage = 'Something went wrong!';
 
   return next(req).pipe(
     catchError((error) => {
@@ -17,11 +17,12 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         if (error.status === 404) {
           router.navigate([`/${_client_notfound}`]);
         }
+        if (error.status === 422) {
+          errorMessage = `${error.error.message}`;;
+        }
         if (error.status === 500) {
           router.navigate([`/${_client_servererror}`]);
         }
-        
-        errorMessage = `Something went wrong!`;
         snackbar.openSnackBar(errorMessage);
       }
       return throwError(() => errorMessage);

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, WritableSignal, signal } from '@angular/core';
+import { Component, WritableSignal, inject, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ImageCroppedEvent, ImageCropperModule } from 'ngx-image-cropper';
 import {
@@ -18,34 +18,40 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 @Component({
   selector: 'app-select-image-dialog',
   standalone: true,
-  imports: [MatIcon, MatFabButton, MatInputModule, MatFormFieldModule,  FormsModule, CommonModule,
+  imports: [
+    MatIcon,
+    MatFabButton,
+    MatInputModule,
+    MatFormFieldModule,
+    FormsModule,
+    CommonModule,
     MatButtonModule,
     MatDialogTitle,
     MatDialogContent,
     MatDialogActions,
-    MatDialogClose,ReactiveFormsModule, ImageCropperModule],
+    MatDialogClose,
+    ReactiveFormsModule,
+    ImageCropperModule,
+  ],
   templateUrl: './select-image-dialog.component.html',
-  styleUrl: './select-image-dialog.component.scss'
+  styleUrl: './select-image-dialog.component.scss',
 })
 export class SelectImageDialogComponent {
-  image: string;
+  #dialogRef = inject(MatDialogRef<SelectImageDialogComponent>);
+  data = inject(MAT_DIALOG_DATA);
   crop: WritableSignal<Blob> = signal<Blob>(null);
+  image: string;
 
-  constructor(
-    public dialogRef: MatDialogRef<SelectImageDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
-  ) {}
-
-  onNoClick(): void {
-    this.dialogRef.close();
-  }
-
-  imageCropped(event: ImageCroppedEvent) {
+  public imageCropped(event: ImageCroppedEvent): void {
     this.image = event.objectUrl;
     this.crop.set(event.blob);
   }
 
   public uploadFile(): void {
-    this.dialogRef.close(this.crop());
+    this.#dialogRef.close(this.crop());
+  }
+
+  public onNoClick(): void {
+    this.#dialogRef.close();
   }
 }

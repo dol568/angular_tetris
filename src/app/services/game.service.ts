@@ -11,7 +11,7 @@ import { HallFame } from '../model/HallFame';
 import {
   _localstorage_hall_fame,
   _localstorage_panel,
-  _localstorage_user,
+  _localstorage_user
 } from '../model/_client_consts';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
@@ -22,7 +22,7 @@ import { _api_default, _api_scores } from '../model/_api_consts';
   providedIn: 'root',
 })
 export class GameService {
-  #http = inject(HttpClient);
+  #http: HttpClient = inject(HttpClient);
   #panel: WritableSignal<Panel> = signal<Panel | undefined>(new Panel());
   panel: Signal<Panel> = computed(this.#panel);
   #hallFame: WritableSignal<HallFame[]> = signal<HallFame[]>([]);
@@ -63,9 +63,7 @@ export class GameService {
     game: string
   ): Observable<HallFame[]> {
     const httpOptions = {
-      headers: new HttpHeaders({
-        'auth-token': user.id,
-      }),
+      headers: new HttpHeaders({ 'auth-token': user.id }),
     };
 
     const body = { name: user.username, game, score };
@@ -76,22 +74,6 @@ export class GameService {
           this.#hallFame.set(response);
         })
       );
-  }
-
-  public getSortedAndFilteredScores(
-    sortOrder: 'asc' | 'desc',
-    filterTerm: string,
-    limit: number = Infinity
-  ): HallFame[] {
-    const sortedScores = [...this.hallFame()].sort((a, b) => {
-      return sortOrder === 'asc' ? a.score - b.score : b.score - a.score;
-    });
-
-    const filteredScores = sortedScores.filter((scores) => {
-      return scores.name.toLowerCase().includes(filterTerm.toLowerCase());
-    });
-
-    return filteredScores.slice(0, limit);
   }
 
   public getScores(game: string): Observable<HallFame[]> {

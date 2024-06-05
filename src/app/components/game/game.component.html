@@ -1,75 +1,90 @@
 <mat-grid-list
-      [cols]="columns"
-      [rowHeight]="rowHeight"
-      gutterSize="25px"
-      style="margin: 25px"
-    >
-      <mat-grid-tile [colspan]="colspan1">
-        <mat-card style="width: 100%; background-color: #f5f5f5">
-          <mat-card-content>
-            <div
-              class="d-flex flex-column align-items-center px-2 stats pb-2 w-80 mat-elevation-z8"
+  [cols]="columns"
+  [rowHeight]="rowHeight"
+  gutterSize="25px"
+  style="margin: 25px"
+>
+  <mat-grid-tile [colspan]="colspan1">
+    <mat-card style="width: 100%; background-color: #f5f5f5">
+      <mat-card-content>
+        <div
+          class="d-flex flex-column align-items-center px-2 stats pb-2 w-80 mat-elevation-z8"
+        >
+          <mat-card-header>
+            <button
+              class="mb-2"
+              mat-fab
+              extended
+              color="{{ color === 'color' ? 'primary' : 'warn' }}"
             >
-              <mat-card-header>
-                <button class="mb-2" mat-fab extended color="{{color === 'color' ? 'primary' : 'warn'}}">
-                  STATS
-                  <mat-icon>equalizer</mat-icon>
-                </button>
-              </mat-card-header>
-              <div class="content">
-                <app-panel [panel]="panel()"></app-panel>
-              </div>
-            </div>
-          </mat-card-content>
-        </mat-card>
-      </mat-grid-tile>
+              STATS
+              <mat-icon>equalizer</mat-icon>
+            </button>
+          </mat-card-header>
+          <div class="content">
+            <app-panel [panel]="panel()"></app-panel>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </mat-grid-tile>
 
-      <mat-grid-tile [colspan]="colspan2">
-        <mat-card style="width: 100%; background-color: #f5f5f5">
-          <mat-card-content>
-            <div
-              class="d-flex flex-column align-items-center px-2 game w-80 pb-2 mat-elevation-z8"
+  <mat-grid-tile [colspan]="colspan2">
+    <mat-card style="width: 100%; background-color: #f5f5f5">
+      <mat-card-content>
+        <div
+          class="d-flex flex-column align-items-center px-2 game w-80 pb-2 mat-elevation-z8"
+        >
+          <mat-card-header>
+            <button
+              class="mb-2"
+              mat-fab
+              extended
+              color="{{ color === 'color' ? 'primary' : 'warn' }}"
             >
-              <mat-card-header>
-                <button class="mb-2" mat-fab extended color="{{color === 'color' ? 'primary' : 'warn'}}">
-                  <mat-icon>gamepad</mat-icon> {{ gameType | uppercase }} GAME
-                </button>
-              </mat-card-header>
-              <div class="content">
-                <app-tetris
-                  [panel]="panel()"
-                  [currentUser]="currentUser()"
-                  (panelData)="getPanel($event)"
-                  (gameOverScore)="getGameOverScore($event)"
-                  [blackAndWhiteSignal]="color"
-                  [gameType]="gameType"
-                  (color)="setColor($event)"
-                >
-                </app-tetris>
-              </div>
-            </div>
-          </mat-card-content>
-        </mat-card>
-      </mat-grid-tile>
+              <mat-icon>gamepad</mat-icon> {{ gameType | uppercase }} GAME
+            </button>
+          </mat-card-header>
+          <div class="content">
+            <app-tetris
+              [panel]="panel()"
+              [currentUser]="currentUser()"
+              (panelData)="getPanel($event)"
+              (gameOverScore)="getGameOverScore($event)"
+              [blackAndWhiteSignal]="color"
+              [gameType]="gameType"
+              (color)="setColor($event)"
+            >
+            </app-tetris>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </mat-grid-tile>
 
-      <mat-grid-tile [colspan]="colspan3">
-        <mat-card style="width: 100%; background-color: #f5f5f5">
-          <mat-card-content>
-            <div
-              class="d-flex flex-column align-items-center px-2 list w-80 pb-2 mat-elevation-z8"
+  <mat-grid-tile [colspan]="colspan3">
+    <mat-card style="width: 100%; background-color: #f5f5f5">
+      <mat-card-content>
+        <div
+          class="d-flex flex-column align-items-center px-2 list w-80 pb-2 mat-elevation-z8"
+        >
+          <mat-card-header>
+            <button
+              class="mb-2"
+              mat-fab
+              extended
+              color="{{ color === 'color' ? 'primary' : 'warn' }}"
             >
-              <mat-card-header>
-                <button class="mb-2" mat-fab extended color="{{color === 'color' ? 'primary' : 'warn'}}">
-                  <mat-icon>history</mat-icon>
-                  HISTORY
-                </button>
-              </mat-card-header>
-              <div class="content">
-                <app-list [tableData]="panel()?.tableData"></app-list>
-              </div>
-            </div>
-          </mat-card-content>
-        </mat-card>
-      </mat-grid-tile>
-      </mat-grid-list>
-      <router-outlet></router-outlet>
+              <mat-icon>history</mat-icon>
+              HISTORY
+            </button>
+          </mat-card-header>
+          <div class="content">
+            <app-list [tableData]="panel()?.tableData"></app-list>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </mat-grid-tile>
+</mat-grid-list>
+<router-outlet></router-outlet>

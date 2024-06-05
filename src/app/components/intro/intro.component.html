@@ -1,5 +1,12 @@
 <div class="container">
   <div class="flex-column align-items-center d-flex content-wrapper w-50">
-    <app-login (formData)="loginUser($event)" [user]="user()"></app-login>
+    <h2 class="mb-3" [ngClass]="{ colored: color(), blackAndWhite: !color() }">
+      Login
+    </h2>
+    <app-login
+      (formData)="loginUser($event)"
+      [user]="user()"
+      (colored)="getColor($event)"
+    ></app-login>
   </div>
 </div>

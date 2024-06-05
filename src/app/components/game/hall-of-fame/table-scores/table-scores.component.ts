@@ -1,4 +1,14 @@
-import { Component, EventEmitter, Output, ViewChild, effect, input, signal } from '@angular/core'
+import {
+  Component,
+  EventEmitter,
+  InputSignal,
+  Output,
+  ViewChild,
+  WritableSignal,
+  effect,
+  input,
+  signal,
+} from '@angular/core';
 import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -12,12 +22,14 @@ import { HallFame } from '../../../../model/HallFame';
   styleUrl: './table-scores.component.scss',
 })
 export class TableScoresComponent {
-  displayedColumns = ['id', 'name', 'score'];
-  hallFame = input.required<HallFame[]>();
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  sort = signal<'asc' | 'desc'>('desc');
   @Output() sortOrder = new EventEmitter<'asc' | 'desc'>();
-  datasource;
+  @ViewChild(MatPaginator) paginator: MatPaginator;
+  datasource: MatTableDataSource<HallFame, MatPaginator>;
+
+  hallFame: InputSignal<HallFame[]> = input.required<HallFame[]>();
+
+  displayedColumns: string[] = ['id', 'name', 'score'];
+  sort: WritableSignal<'asc' | 'desc'> = signal<'asc' | 'desc'>('desc');
 
   constructor() {
     effect(() => {
@@ -28,7 +40,6 @@ export class TableScoresComponent {
 
   public changeOrder(): void {
     this.sort.set(this.sort() === 'asc' ? 'desc' : 'asc');
-    this.sortOrder.emit(this.sort())
+    this.sortOrder.emit(this.sort());
   }
-  
 }

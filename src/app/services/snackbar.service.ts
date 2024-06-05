@@ -9,7 +9,7 @@ import {
   providedIn: 'root',
 })
 export class SnackbarService {
-  #snackBar = inject(MatSnackBar);
+  #snackBar: MatSnackBar = inject(MatSnackBar);
 
   #durationInSeconds: number = 3;
   #horizontalPosition: MatSnackBarHorizontalPosition = 'end';

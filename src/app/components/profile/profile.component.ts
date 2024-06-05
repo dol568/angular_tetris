@@ -1,5 +1,6 @@
 import {
   Component,
+  OnDestroy,
   Signal,
   WritableSignal,
   computed,
@@ -23,6 +24,11 @@ import { UpdateProfileDialogComponent } from './update-profile-dialog/update-pro
 import { SelectImageDialogComponent } from './select-image-dialog/select-image-dialog.component';
 import { TableScoresComponent } from '../game/hall-of-fame/table-scores/table-scores.component';
 import { SnackbarService } from '../../services/snackbar.service';
+import { Subject, takeUntil } from 'rxjs';
+import { User } from '../../model/User';
+import { FilterPipe } from '../../pipes/filter.pipe';
+import { HallFame } from '../../model/HallFame';
+import { SortPipe } from '../../pipes/sort.pipe';
 
 @Component({
   selector: 'app-profile',
@@ -41,26 +47,45 @@ import { SnackbarService } from '../../services/snackbar.service';
     TableScoresComponent,
   ],
 })
-export class ProfileComponent {
-  #snackBarService = inject(SnackbarService);
-  imageChangedEvent: WritableSignal<any> = signal<any>('');
-  #accountService = inject(AccountService);
-  #activatedRoute = inject(ActivatedRoute);
-  #dialog = inject(MatDialog)
-  params: Signal<ParamMap> = toSignal(this.#activatedRoute.paramMap);
-  parentParams: Signal<ParamMap> = toSignal(this.#activatedRoute.parent.paramMap);
-  username = this.params().get('username');
-  displayedColumns: string[] = ['id', 'name', 'score'];
-  #gameService = inject(GameService);
-  game = signal<string>('tetris');
-  currentUser = this.#accountService.user;
-  sort = signal<'asc' | 'desc'>('desc');
+export class ProfileComponent implements OnDestroy {
+  #destroySubject$: Subject<void> = new Subject<void>();
+  #snackBarService: SnackbarService = inject(SnackbarService);
+  #accountService: AccountService = inject(AccountService);
+  #gameService: GameService = inject(GameService);
+  #dialog: MatDialog = inject(MatDialog);
+  #activatedRoute: ActivatedRoute = inject(ActivatedRoute);
 
-  hallFame = computed(() => {
-    return this.#gameService
-      .getSortedAndFilteredScores(this.sort(), this.currentUser()?.username)
-      .map((row, index) => ({ ...row, id: index + 1 }));
+  currentUser: Signal<User> = this.#accountService.user;
+  hallFameData: Signal<HallFame[]> = this.#gameService.hallFame;
+  params: Signal<ParamMap> = toSignal(this.#activatedRoute.paramMap);
+  username: string = this.params().get('username');
+  imageChangedEvent: WritableSignal<any> = signal<any>('');
+  displayedColumns: string[] = ['id', 'name', 'score'];
+  game: WritableSignal<string> = signal<string>('tetris');
+  sort: WritableSignal<'asc' | 'desc'> = signal<'asc' | 'desc'>('desc');
+
+  hallFame: Signal<HallFame[]> = computed(() => {
+    const filteredData = new FilterPipe().transform(
+      [...this.hallFameData()],
+      'name',
+      this.currentUser()?.username,
+      true
+    );
+    const sortedAndFilteredData = new SortPipe().transform(
+      [...filteredData],
+      this.sort() === 'desc',
+      'score'
+    );
+    return sortedAndFilteredData.map((row, index) => ({
+      ...row,
+      id: index + 1,
+    }));
   });
+
+  ngOnDestroy(): void {
+    this.#destroySubject$.next();
+    this.#destroySubject$.complete();
+  }
 
   public changeOrder(): void {
     this.sort.set(this.sort() === 'asc' ? 'desc' : 'asc');
@@ -68,11 +93,14 @@ export class ProfileComponent {
 
   constructor() {
     effect(() => {
-      this.#gameService.getScores(this.game()).subscribe();
+      this.#gameService
+        .getScores(this.game())
+        .pipe(takeUntil(this.#destroySubject$))
+        .subscribe({ error: (err) => console.log(err) });
     });
   }
 
-  openDialog(): void {
+  public openDialog(): void {
     const dialogRef = this.#dialog.open(UpdateProfileDialogComponent, {
       data: {
         username: this.currentUser()?.username,
@@ -81,26 +109,40 @@ export class ProfileComponent {
       },
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
-      this.#accountService.updateUserProfile(result);
-      this.#snackBarService.openSnackBar('Profile Info updated');
-    });
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntil(this.#destroySubject$))
+      .subscribe({
+        next: (result) => {
+          this.#accountService.updateUserProfile(result);
+          this.#snackBarService.openSnackBar('Profile Info updated');
+        },
+        error: (err) => console.log(err),
+      });
   }
 
-  fileChangeEvent(event: any): void {
+  public fileChangeEvent(event: any): void {
     this.imageChangedEvent.set(event);
     const dialogRef = this.#dialog.open(SelectImageDialogComponent, {
       width: '700px',
       data: { imageChangedEvent: this.imageChangedEvent() },
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
-      this.#accountService.updateUserPhoto(result);
-      this.#snackBarService.openSnackBar('Profile Image updated');
-    });
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntil(this.#destroySubject$))
+      .subscribe({
+        next: (result) => {
+          if (result) {
+            this.#accountService.updateUserPhoto(result);
+            this.#snackBarService.openSnackBar('Profile Image updated');
+          }
+        },
+        error: (err) => console.log(err),
+      });
   }
 
-  getSortOrder(order: 'asc' | 'desc') {
+  public getSortOrder(order: 'asc' | 'desc'): void {
     this.sort.set(order);
   }
 }

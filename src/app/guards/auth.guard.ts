@@ -5,9 +5,9 @@ import { SnackbarService } from '../services/snackbar.service';
 import { _client_game, _client_home } from '../model/_client_consts';
 
 export const authGuard: CanActivateFn = (route, state) => {
-  const snackBarService = inject(SnackbarService);
-  const accountService = inject(AccountService);
-  const router = inject(Router);
+  const snackBarService: SnackbarService = inject(SnackbarService);
+  const accountService: AccountService = inject(AccountService);
+  const router: Router = inject(Router);
 
   if (accountService.isAuthenticated()) {
     return true;

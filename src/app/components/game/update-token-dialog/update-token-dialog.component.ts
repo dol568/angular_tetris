@@ -1,6 +1,19 @@
-import { Component, Inject, OnInit } from '@angular/core';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
+import { Component, OnInit, inject } from '@angular/core';
+import {
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogActions,
+  MatDialogClose,
+  MatDialogContent,
+  MatDialogRef,
+  MatDialogTitle,
+} from '@angular/material/dialog';
 import { FormFieldValidators } from '../../../model/formFieldValidators';
 import { MatIcon } from '@angular/material/icon';
 import { MatButtonModule, MatFabButton } from '@angular/material/button';
@@ -11,7 +24,8 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-update-token-dialog',
   standalone: true,
-  imports: [MatIcon,
+  imports: [
+    MatIcon,
     MatFabButton,
     MatInputModule,
     MatFormFieldModule,
@@ -22,21 +36,17 @@ import { CommonModule } from '@angular/common';
     MatDialogContent,
     MatDialogActions,
     MatDialogClose,
-    ReactiveFormsModule,],
+    ReactiveFormsModule,
+  ],
   templateUrl: './update-token-dialog.component.html',
-  styleUrl: './update-token-dialog.component.scss'
+  styleUrl: './update-token-dialog.component.scss',
 })
-export class UpdateTokenDialogComponent implements OnInit{
-  public id: boolean = false;
-  updateTokenForm: FormGroup;
-  constructor(
-    public dialogRef: MatDialogRef<UpdateTokenDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any
-  ) {}
+export class UpdateTokenDialogComponent implements OnInit {
+  #dialogRef = inject(MatDialogRef<UpdateTokenDialogComponent>);
+  data = inject(MAT_DIALOG_DATA);
 
-  onNoClick(): void {
-    this.dialogRef.close();
-  }
+  updateTokenForm: FormGroup;
+  public id: boolean = false;
 
   ngOnInit(): void {
     this.updateTokenForm = new FormGroup({
@@ -54,15 +64,24 @@ export class UpdateTokenDialogComponent implements OnInit{
   }
 
   public onSubmit(): void {
-    console.log(this.updateTokenForm.getRawValue())
-    this.dialogRef.close(this.updateTokenForm.getRawValue());
+    this.#dialogRef.close(this.updateTokenForm.getRawValue());
   }
 
-  checkForErrorsIn(field: string): string {
+  public onNoClick(): void {
+    this.#dialogRef.close();
+  }
+
+  public toggleIdVisibility(): void {
+    this.id = !this.id;
+  }
+
+  public checkForErrorsIn(field: string): string {
     if (this.updateTokenForm.controls[`${field}`].hasError('required')) {
       return 'Id is required';
     }
-    if (this.updateTokenForm.controls[`${field}`].hasError('onlyNumberAllowed')) {
+    if (
+      this.updateTokenForm.controls[`${field}`].hasError('onlyNumberAllowed')
+    ) {
       return 'Must contain only numbers';
     }
     if (this.updateTokenForm.controls[`${field}`].hasError('minlength')) {
@@ -81,9 +100,5 @@ export class UpdateTokenDialogComponent implements OnInit{
 
   get idValid() {
     return this.updateTokenForm.controls['id'].errors === null;
-  }
-
-  public toggleIdVisibility(): void {
-    this.id = !this.id;
   }
 }

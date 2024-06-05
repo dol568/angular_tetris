@@ -1,7 +1,9 @@
 <div class="container d-flex flex-column align-items-center">
   <mat-card style="width: 70%" class="mb-3">
     <mat-card-content
-      [style.background-color]="currentUser()?.color === 'color' ? '#3f51b5' : '#f44336'"
+      [style.background-color]="
+        currentUser()?.color === 'color' ? '#3f51b5' : '#f44336'
+      "
       [style.color]="'#fff'"
     >
       <div class="w-100 d-flex flex-row align-items-center">

@@ -33,7 +33,7 @@ import {
   _localstorage_panel,
 } from '../../../model/_client_consts';
 import { CommonModule } from '@angular/common';
-import { interval, Subscription } from 'rxjs';
+import { interval, Subject, takeUntil } from 'rxjs';
 import { NgxSnakeComponent, NgxSnakeModule } from 'ngx-snake';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatButton } from '@angular/material/button';
@@ -71,19 +71,24 @@ export class TetrisComponent implements OnInit, OnDestroy, OnChanges {
   private _tetris: TetrisCoreComponent;
   @ViewChild(NgxSnakeComponent)
   private _snake: NgxSnakeComponent;
+  #destroySubject$: Subject<void> = new Subject<void>();
+  #hotkeysService: HotkeysService = inject(HotkeysService);
+  #router: Router = inject(Router);
   @Output() panelData = new EventEmitter<Panel>();
   @Output() color = new EventEmitter<string>();
   @Output() gameOverScore = new EventEmitter<number>();
+
   currentUser: InputSignal<User> = input.required<User>();
   panel: InputSignal<Panel> = input.required<Panel>();
-  #time: WritableSignal<number> = signal<number>(-1);
-  #router = inject(Router);
   blackAndWhiteSignal = input.required<string>();
-  #tableData: WritableSignal<TableData[]> = signal<TableData[]>([]);
+
+  #time: WritableSignal<number> = signal<number>(-1);
+
   #points: WritableSignal<number> = signal<number>(undefined);
   #bestScore: WritableSignal<number> = signal<number>(undefined);
   gameStatus: WritableSignal<GameStatus> = signal<GameStatus>(undefined);
   #display: WritableSignal<string> = signal<string>(undefined);
+  #tableData: WritableSignal<TableData[]> = signal<TableData[]>([]);
   panelDataSignal: Signal<Panel> = computed(() => ({
     points: this.#points(),
     bestScore: this.#bestScore(),
@@ -91,12 +96,11 @@ export class TetrisComponent implements OnInit, OnDestroy, OnChanges {
     display: this.#display(),
     tableData: this.#tableData(),
   }));
-  #subscription: Subscription;
   readonly GameStatus = GameStatus;
   gameType = input.required<string>();
 
-  constructor(private _hotkeysService: HotkeysService) {
-    this._addHotkeys();
+  constructor() {
+    this.#addHotkeys();
     effect(() => {
       this.panelData.emit(this.panelDataSignal());
     });
@@ -118,6 +122,8 @@ export class TetrisComponent implements OnInit, OnDestroy, OnChanges {
   ngOnDestroy(): void {
     this.#takeAction(this.gameType(), 'actionStop');
     this.#takeAction(this.gameType(), 'actionReset');
+    this.#destroySubject$.next();
+    this.#destroySubject$.complete();
   }
 
   changeTheme(colorPath: string) {
@@ -127,29 +133,23 @@ export class TetrisComponent implements OnInit, OnDestroy, OnChanges {
 
   public start(): void {
     this.gameStatus.set(GameStatus.STARTED);
-
-    this.#subscription = interval(1000).subscribe(() => {
-      this.#time.update((time) => time + 1);
-      this.#display.set(this.#transform(this.#time()));
-    });
+    interval(1000)
+      .pipe(takeUntil(this.#destroySubject$))
+      .subscribe({
+        next: () => {
+          this.#time.update((time) => time + 1);
+          this.#display.set(this.#transform(this.#time()));
+        },
+        error: (err) => console.error(err),
+      });
 
     this.#tableData.update((values) => [...values, new TableData()]);
     this.#takeAction(this.gameType(), 'actionStart');
   }
 
-  #takeAction(game: string, action: string) {
-    if (game === 'race') {
-      this._race[action]();
-    } else if (game === 'tetris') {
-      this._tetris[action]();
-    } else {
-      this._snake[action]();
-    }
-  }
-
   public stop(): void {
     this.gameStatus.set(GameStatus.PAUSED);
-    this.#subscription.unsubscribe();
+    this.#destroySubject$.next();
 
     this.#tableData.update((values) => [
       ...values,
@@ -185,18 +185,6 @@ export class TetrisComponent implements OnInit, OnDestroy, OnChanges {
     this.#getPoints(_action_food_eaten);
   }
 
-  #getPoints(actionName: string) {
-    this.#points.update((points) => points + 100);
-    this.#tableData.update((values) => [
-      ...values,
-      new TableData(actionName),
-    ]);
-
-    if (this.#points() > this.#bestScore()) {
-      this.#bestScore.set(this.#points());
-    }
-  }
-
   public onLineCleared(): void {
     this.#getPoints(_action_line_cleared);
   }
@@ -212,32 +200,6 @@ export class TetrisComponent implements OnInit, OnDestroy, OnChanges {
 
     this.gameStatus.set(GameStatus.READY);
     this.#takeAction(this.gameType(), 'actionReset');
-  }
-
-  #transform(value: number): string {
-    const sec_num = value;
-    const hours = Math.floor(sec_num / 3600);
-    const minutes = Math.floor((sec_num - hours * 3600) / 60);
-    const seconds = sec_num - hours * 3600 - minutes * 60;
-
-    return (
-      (hours < 10 ? '0' + hours : hours) +
-      ':' +
-      (minutes < 10 ? '0' + minutes : minutes) +
-      ':' +
-      (seconds < 10 ? '0' + seconds : seconds)
-    );
-  }
-
-  #clearPanel(): void {
-    this.#subscription.unsubscribe();
-    this.#clearTimer();
-  }
-
-  #clearTimer(): void {
-    this.#points.set(0);
-    this.#time.set(0);
-    this.#display.set(this.#transform(this.#time()));
   }
 
   public left(): void {
@@ -272,35 +234,80 @@ export class TetrisComponent implements OnInit, OnDestroy, OnChanges {
     this._tetris.actionDrop();
   }
 
-  private _addHotkeys() {
-    this._hotkeysService.add(
+  #getPoints(actionName: string) {
+    this.#points.update((points) => points + 100);
+    this.#tableData.update((values) => [...values, new TableData(actionName)]);
+
+    if (this.#points() > this.#bestScore()) {
+      this.#bestScore.set(this.#points());
+    }
+  }
+
+  #transform(value: number): string {
+    const sec_num = value;
+    const hours = Math.floor(sec_num / 3600);
+    const minutes = Math.floor((sec_num - hours * 3600) / 60);
+    const seconds = sec_num - hours * 3600 - minutes * 60;
+
+    return (
+      (hours < 10 ? '0' + hours : hours) +
+      ':' +
+      (minutes < 10 ? '0' + minutes : minutes) +
+      ':' +
+      (seconds < 10 ? '0' + seconds : seconds)
+    );
+  }
+
+  #takeAction(game: string, action: string) {
+    if (game === 'race') {
+      this._race[action]();
+    } else if (game === 'tetris') {
+      this._tetris[action]();
+    } else {
+      this._snake[action]();
+    }
+  }
+
+  #clearPanel(): void {
+    this.#destroySubject$.next();
+    this.#clearTimer();
+  }
+
+  #clearTimer(): void {
+    this.#points.set(0);
+    this.#time.set(0);
+    this.#display.set(this.#transform(this.#time()));
+  }
+
+  #addHotkeys() {
+    this.#hotkeysService.add(
       new Hotkey('up', (_: KeyboardEvent): boolean => {
         this.up();
         return false;
       })
     );
 
-    this._hotkeysService.add(
+    this.#hotkeysService.add(
       new Hotkey('left', (_: KeyboardEvent): boolean => {
         this.left();
         return false;
       })
     );
 
-    this._hotkeysService.add(
+    this.#hotkeysService.add(
       new Hotkey('down', (_: KeyboardEvent): boolean => {
         this.down();
         return false;
       })
     );
 
-    this._hotkeysService.add(
+    this.#hotkeysService.add(
       new Hotkey('right', (_: KeyboardEvent): boolean => {
         this.right();
         return false;
       })
     );
-    this._hotkeysService.add(
+    this.#hotkeysService.add(
       new Hotkey('enter', (_: KeyboardEvent): boolean => {
         this.drop();
         return false;

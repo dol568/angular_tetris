@@ -42,33 +42,31 @@ import { MatIconModule } from '@angular/material/icon';
   styleUrl: './list.component.scss',
 })
 export class ListComponent {
+  @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatSort) sort: MatSort;
   displayedColumns: string[] = ['timestamp', 'actionName'];
   tableData: InputSignal<TableData[]> = input.required<TableData[]>();
   changeOrderSignal: WritableSignal<boolean> = signal<boolean>(false);
-  dataSource;
-
-  term = signal<string>('');
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort) sort: MatSort;
-  pageOfItems?: Array<any>;
+  term: WritableSignal<string> = signal<string>('');
+  dataSource: MatTableDataSource<TableData[], MatPaginator>;
 
   constructor() {
     effect(() => {
-      const filtered = new FilterPipe().transform(
+      const filteredData = new FilterPipe().transform(
         [...this.tableData()],
         'actionName',
         this.term()
       );
-      const sorted = new SortPipe().transform(
-        [...filtered],
+      const sortedAndFilteredData = new SortPipe().transform(
+        [...filteredData],
         this.changeOrderSignal(),
         'timestamp'
       );
-      this.dataSource = new MatTableDataSource(sorted);
+      this.dataSource = new MatTableDataSource(sortedAndFilteredData);
       this.dataSource.paginator = this.paginator;
     });
   }
-  applyFilter(filterValue: string) {
+  public applyFilter(filterValue: string): void {
     this.term.set(filterValue.trim());
   }
 }

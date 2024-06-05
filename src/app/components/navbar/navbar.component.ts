@@ -37,9 +37,9 @@ import { SnackbarService } from '../../services/snackbar.service';
   styleUrl: './navbar.component.scss',
 })
 export class NavbarComponent {
-  #accountService = inject(AccountService);
-  #router = inject(Router);
-  #snackBarService = inject(SnackbarService);
+  #accountService: AccountService = inject(AccountService);
+  #router: Router = inject(Router);
+  #snackBarService: SnackbarService = inject(SnackbarService);
   currentUser: Signal<User> = this.#accountService.user;
   params: Signal<any> = toSignal(this.#router.events);
 
@@ -57,11 +57,11 @@ export class NavbarComponent {
   }
 
   public goToHighScores(): void {    
-    this.#router.navigate(['../game', this.currentUser().game, this.currentUser().color, 'highScores']);
+    this.#router.navigate(['../game', this.currentUser()?.game, this.currentUser()?.color, 'highScores']);
   }
 
   public goToProfile(): void {
-    this.#router.navigate(['../profile', this.currentUser().username]);
+    this.#router.navigate(['../profile', this.currentUser()?.username]);
   }
 
   public goBack(): void {
@@ -73,6 +73,6 @@ export class NavbarComponent {
   }
 
   public goToGame(): void {
-    this.#router.navigate(['../game', this.currentUser().game, this.currentUser().color]);
+    this.#router.navigate(['../game', this.currentUser()?.game, this.currentUser()?.color]);
   }
 }

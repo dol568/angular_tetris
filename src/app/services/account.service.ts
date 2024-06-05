@@ -12,7 +12,7 @@ import {
   _client_home,
   _localstorage_game_params,
   _localstorage_panel,
-  _localstorage_user,
+  _localstorage_user
 } from '../model/_client_consts';
 import { SnackbarService } from './snackbar.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -27,13 +27,13 @@ interface CheckAuthResponse {
   providedIn: 'root',
 })
 export class AccountService {
-  #http = inject(HttpClient);
-  #router = inject(Router);
-  #snackBarService = inject(SnackbarService);
+  #http: HttpClient = inject(HttpClient);
+  #router: Router = inject(Router);
+  #snackBarService: SnackbarService = inject(SnackbarService);
   #user: WritableSignal<User> = signal<User | undefined>(undefined);
   user: Signal<User> = computed(this.#user);
 
-  public login(data: User) {
+  public login(data: User): Observable<CheckAuthResponse> {
     const httpOptions = {
       headers: new HttpHeaders({ 'auth-token': data.id }),
     };
@@ -69,49 +69,6 @@ export class AccountService {
       );
   }
 
-  public updateUserProfile(data: User): void {
-    const foundUser = this.#getUserFromLocalStorage();
-    if (foundUser) {
-      const updatedUser = {
-        ...foundUser,
-        email: data.email,
-        bio: data.bio,
-      };
-      this.#setUser(updatedUser);
-    }
-  }
-
-  updateUserPhoto(data: any): void {
-    const foundUser = this.#getUserFromLocalStorage();
-    if (foundUser) {
-      this.#toBase64(data).subscribe((base64) => {
-        const updatedUser = { ...foundUser, image: base64 };
-        this.#setUser(updatedUser);
-      });
-    }
-  }
-
-  #toBase64(blob: Blob): Observable<string> {
-    const reader = new FileReader();
-    reader.readAsDataURL(blob);
-    return fromEvent(reader, 'load').pipe(
-      map(() => {
-        return (reader.result as string).split(',')[1];
-      })
-    );
-  }
-
-  updateColor(user: User) {
-    const foundUser = this.#getUserFromLocalStorage();
-    if (foundUser) {
-      const updatedUser = {
-        ...foundUser,
-        color: user.color,
-      };
-      this.#setUser(updatedUser);
-    }
-  }
-
   public loadCurrentUser(): void {
     const foundUser = this.#getUserFromLocalStorage();
     if (foundUser) {
@@ -139,7 +96,50 @@ export class AccountService {
     this.#router.navigate([_client_home]);
   }
 
-  #setUser(user: User) {
+  public updateUserProfile(data: User): void {
+    const foundUser = this.#getUserFromLocalStorage();
+    if (foundUser) {
+      const updatedUser = {
+        ...foundUser,
+        email: data.email,
+        bio: data.bio,
+      };
+      this.#setUser(updatedUser);
+    }
+  }
+
+  public updateUserPhoto(data: any): void {
+    const foundUser = this.#getUserFromLocalStorage();
+    if (foundUser) {
+      this.#toBase64(data).subscribe((base64) => {
+        const updatedUser = { ...foundUser, image: base64 };
+        this.#setUser(updatedUser);
+      });
+    }
+  }
+
+  public updateColor(user: User): void {
+    const foundUser = this.#getUserFromLocalStorage();
+    if (foundUser) {
+      const updatedUser = {
+        ...foundUser,
+        color: user.color,
+      };
+      this.#setUser(updatedUser);
+    }
+  }
+
+  #toBase64(blob: Blob): Observable<string> {
+    const reader = new FileReader();
+    reader.readAsDataURL(blob);
+    return fromEvent(reader, 'load').pipe(
+      map(() => {
+        return (reader.result as string).split(',')[1];
+      })
+    );
+  }
+
+  #setUser(user: User): void {
     this.#user.set(user);
     localStorage.setItem(
       _localstorage_user,
@@ -147,12 +147,12 @@ export class AccountService {
     );
   }
 
-  #getUserFromLocalStorage() {
+  #getUserFromLocalStorage(): User | null {
     const foundUser = localStorage.getItem(_localstorage_user);
     return foundUser ? JSON.parse(foundUser) : null;
   }
 
-  #deletePanelFromLocalStorage() {
+  #deletePanelFromLocalStorage(): void {
     localStorage.removeItem(_localstorage_panel);
   }
 }

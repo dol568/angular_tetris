@@ -3,15 +3,10 @@
   margin: auto;
 }
 
-// ::-webkit-scrollbar {
-//   width: 0px;
-//   background: transparent; /* make scrollbar transparent */
-// }
-
 .content {
   padding: 1.5%;
   height: 500px;
-  width: 100%
+  width: 100%;
 }
 
 .game {
@@ -25,11 +20,3 @@
 .stats {
   min-width: 200px;
 }
-
-mat-grid-tile {
-  // border: solid 1px ;
-  // background: lightblue;
-}
-
-
-

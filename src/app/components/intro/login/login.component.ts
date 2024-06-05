@@ -1,6 +1,7 @@
 import {
   Component,
   EventEmitter,
+  InputSignal,
   OnInit,
   Output,
   WritableSignal,
@@ -49,13 +50,12 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
   styleUrl: './login.component.scss',
 })
 export class LoginComponent implements OnInit {
-  toggleChecked = false;
-
+  @Output() colored = new EventEmitter<boolean>();
   @Output() formData = new EventEmitter<User>();
   loginForm: FormGroup;
   type: WritableSignal<string> = signal<string>('password');
-  public id: boolean = false;
-  user = input.required<User>();
+  id: boolean = false;
+  user: InputSignal<User> = input.required<User>();
 
   ngOnInit(): void {
     this.loginForm = new FormGroup({
@@ -91,8 +91,8 @@ export class LoginComponent implements OnInit {
     this.formData.emit(this.loginForm.value);
   }
 
-  onToggleChange(checked: boolean) {
-    this.toggleChecked = checked;
+  public onToggleChange(checked: boolean): void {
+    this.colored.emit(checked);
   }
 
   public toggleIdVisibility(): void {
@@ -123,7 +123,6 @@ export class LoginComponent implements OnInit {
         ? 'Must be at most 30 characters long'
         : 'Must be at exactly 4 characters long';
     }
-
     return '';
   }
 

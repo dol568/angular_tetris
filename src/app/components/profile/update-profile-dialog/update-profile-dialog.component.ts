@@ -1,4 +1,4 @@
-import { Component, Inject, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
@@ -41,19 +41,10 @@ import { User } from '../../../model/User';
   templateUrl: './update-profile-dialog.component.html',
   styleUrl: './update-profile-dialog.component.scss',
 })
-export class UpdateProfileDialogComponent {
+export class UpdateProfileDialogComponent implements OnInit {
   #dialogRef = inject(MatDialogRef<UpdateProfileDialogComponent>);
-  #data: User = inject(MAT_DIALOG_DATA)
-
+  #data: User = inject(MAT_DIALOG_DATA);
   updateProfileForm: FormGroup;
-  // constructor(
-    // public dialogRef: MatDialogRef<UpdateProfileDialogComponent>,
-    // @Inject(MAT_DIALOG_DATA) public data: User
-  // ) {}
-
-  onNoClick(): void {
-    this.#dialogRef.close();
-  }
 
   ngOnInit(): void {
     this.updateProfileForm = new FormGroup({
@@ -66,8 +57,11 @@ export class UpdateProfileDialogComponent {
   public onSubmit(): void {
     this.#dialogRef.close(this.updateProfileForm.getRawValue());
   }
+  public onNoClick(): void {
+    this.#dialogRef.close();
+  }
 
-  checkForErrorsIn(field: string): string {
+  public checkForErrorsIn(field: string): string {
     if (this.updateProfileForm.controls[`${field}`].hasError('email')) {
       return 'Must be a valid email';
     }
