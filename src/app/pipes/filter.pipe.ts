@@ -1,5 +1,4 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { TableData } from '../model/Panel';
 
 @Pipe({
   name: 'filter',
@@ -7,10 +6,11 @@ import { TableData } from '../model/Panel';
 })
 export class FilterPipe implements PipeTransform {
   transform(
-    values: TableData[],
-    field: keyof TableData,
-    term: string
-  ): TableData[] {
+    values: any[],
+    field: any,
+    term: string,
+    exact: boolean = false
+  ): any[] {
     if (!values) {
       return [];
     }
@@ -19,10 +19,13 @@ export class FilterPipe implements PipeTransform {
       return values;
     }
 
-    term = term.toLowerCase().trim();
-
-    return [...values].filter((value) =>
-      value[field].toString().toLowerCase().includes(term)
-    );
+    return [...values].filter((value) => {
+      if (exact) {
+        return value[field] === term;
+      } else {
+        term = term.toLowerCase().trim();
+        return value[field].toString().toLowerCase().includes(term);
+      }
+    });
   }
 }

@@ -1,0 +1,36 @@
+<p mat-dialog-title>Token missing. Provide a token or click 'Cancel' to not save your score</p>
+<form [formGroup]="updateTokenForm" (ngSubmit)="onSubmit()">
+  <mat-dialog-content>
+    <mat-form-field appearance="outline" class="w-100" >
+        <mat-label>Id</mat-label>
+        <input
+          id="id"
+          formControlName="id"
+          [type]="id ? 'text' : 'password'"
+          matInput
+          placeholder="Id"
+          [ngClass]="{ 'is-invalid': f['id'].dirty && !idValid }"
+        />
+        <mat-icon matSuffix (click)="toggleIdVisibility()">{{
+          id ? "visibility_off" : "visibility"
+        }}</mat-icon>
+        <mat-error>{{ checkForErrorsIn("id") }}</mat-error>
+      </mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions class="mb-2 mr-4 d-flex justify-content-end">
+    <button class="mr-4" mat-fab extended (click)="onNoClick()">Cancel</button>
+    <div class="button">
+      <button
+        cdkFocusInitial
+        mat-fab
+        extended
+        type="submit"
+        color="primary"
+        class="w-100"
+        [disabled]="updateTokenForm.invalid"
+      >
+        Save<mat-icon iconPositionEnd>save</mat-icon>
+      </button>
+    </div>
+  </mat-dialog-actions>
+</form>

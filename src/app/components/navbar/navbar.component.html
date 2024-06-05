@@ -1,12 +1,60 @@
-<div
-  class="nav d-flex flex-column flex-lg-row align-items-center justify-content-between mb-3 bg-white border-bottom shadow-sm"
+<mat-toolbar
+  class="shadow p-3 mb-3 w-100"
+  color="{{ currentUser()?.color === 'color' ? 'primary' : 'warn' }}"
 >
-  <h3 class="logo">Tetris Game</h3>
-  <div class="d-flex align-items-center">
-    @if (currentUser()) {
-    <button class="btn btn-outline-secondary" type="button" (click)="exit()">
-      <i class="fas fa-sign-out-alt"></i> Logout
+  <button mat-icon-button class="example-icon" (click)="goBack()">
+    <mat-icon>keyboard_backspace</mat-icon>
+  </button>
+  <span class="example-spacer"></span>
+  @if (!profileRoute()) { @if (highRoute()) {
+  <button mat-raised-button class="mr-5" 
+  (click)="goToGame()"
+  >
+    Hide High Scores
+  </button>
+  } @else {
+  <button mat-raised-button class="mr-5" 
+  (click)="goToHighScores()"
+  >
+    Show High Scores
+  </button>
+  } }
+  <span>Welcome back, {{ currentUser()?.username }}!</span>
+
+  <img
+    class="rounded-circle ml-2"
+    src="{{
+      currentUser().image
+        ? 'data:image/png;base64,' + currentUser().image
+        : './../../../assets/user.jpg'
+    }}"
+    alt="Profile photo"
+    style="width: 40px"
+  />
+
+  <button mat-icon-button class="example-icon" [matMenuTriggerFor]="menu">
+    <mat-icon>menu</mat-icon>
+  </button>
+  <mat-menu #menu="matMenu">
+    <button
+      mat-menu-item
+      [disabled]="profileRoute()"
+      (click)="goToProfile()"
+      >
+      <mat-icon>account_circle</mat-icon>
+      <span>Profile</span>
     </button>
-    }
-  </div>
-</div>
+    <button mat-menu-item
+     [disabled]="!profileRoute()"
+     (click)="goToGame()"
+     >
+      <mat-icon>videogame_asset</mat-icon>
+      <span>Game</span>
+    </button>
+    <button mat-menu-item (click)="exit()">
+      <mat-icon>logout</mat-icon>
+      <span>Logout</span>
+    </button>
+  </mat-menu>
+</mat-toolbar>
+<router-outlet></router-outlet>

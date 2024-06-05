@@ -3,14 +3,14 @@
   margin: auto;
 }
 
-::-webkit-scrollbar {
-  width: 0px;
-  background: transparent; /* make scrollbar transparent */
-}
+// ::-webkit-scrollbar {
+//   width: 0px;
+//   background: transparent; /* make scrollbar transparent */
+// }
 
 .content {
   padding: 1.5%;
-  height: 470px;
+  height: 500px;
   width: 100%
 }
 
@@ -25,3 +25,11 @@
 .stats {
   min-width: 200px;
 }
+
+mat-grid-tile {
+  // border: solid 1px ;
+  // background: lightblue;
+}
+
+
+

@@ -1,5 +1,6 @@
 import {
   computed,
+  inject,
   Injectable,
   Signal,
   signal,
@@ -10,45 +11,45 @@ import { HallFame } from '../model/HallFame';
 import {
   _localstorage_hall_fame,
   _localstorage_panel,
-} from '../model/_const_vars';
+  _localstorage_user,
+} from '../model/_client_consts';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable, tap } from 'rxjs';
+import { User } from '../model/User';
+import { _api_default, _api_scores } from '../model/_api_consts';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GameService {
+  #http = inject(HttpClient);
   #panel: WritableSignal<Panel> = signal<Panel | undefined>(new Panel());
-  #hallFame: WritableSignal<HallFame[]> = signal<HallFame[]>([]);
   panel: Signal<Panel> = computed(this.#panel);
+  #hallFame: WritableSignal<HallFame[]> = signal<HallFame[]>([]);
   hallFame: Signal<HallFame[]> = computed(this.#hallFame);
 
   public loadData(): void {
-    const foundPanelData = localStorage.getItem(_localstorage_panel);
-    const foundHallFameData = localStorage.getItem(_localstorage_hall_fame);
+    const foundPanelData = this.#getUserFromLocalStorage();
     if (foundPanelData) {
-      const parsedData: Panel = JSON.parse(foundPanelData);
-      const tableData: TableData[] = parsedData.tableData.map((data) => {
+      const tableData: TableData[] = foundPanelData.tableData.map((data) => {
         return new TableData(data.actionName, new Date(data.timestamp));
       });
-      const parsedPanel = new Panel(
-        parsedData.points,
-        parsedData.bestScore,
-        parsedData.gameStatus,
-        parsedData.display,
+      const panel = new Panel(
+        foundPanelData.points,
+        foundPanelData.bestScore,
+        foundPanelData.gameStatus,
+        foundPanelData.display,
         tableData
       );
-      this.#panel.set(parsedPanel);
+      this.#panel.set(panel);
     } else {
       this.#panel.set(new Panel());
     }
-    if (foundHallFameData) {
-      const parsedData: HallFame[] = JSON.parse(foundHallFameData);
-      const hallFameData: HallFame[] = parsedData.map((data) => {
-        return new HallFame(data.username, data.hallFameScore);
-      });
-      this.#hallFame.set(hallFameData);
-    } else {
-      this.#hallFame.set([]);
-    }
+  }
+
+  #getUserFromLocalStorage(): Panel {
+    const foundPanelData = localStorage.getItem(_localstorage_panel);
+    return foundPanelData ? JSON.parse(foundPanelData) : null;
   }
 
   public setPanel(data: Panel): void {
@@ -56,8 +57,56 @@ export class GameService {
     this.#panel.set(data);
   }
 
-  public setHighScores(data: HallFame[]): void {
-    localStorage.setItem(_localstorage_hall_fame, JSON.stringify(data));
-    this.#hallFame.set(data);
+  public postScoreOnGameOver(
+    score: number,
+    user: User,
+    game: string
+  ): Observable<HallFame[]> {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'auth-token': user.id,
+      }),
+    };
+
+    const body = { name: user.username, game, score };
+    return this.#http
+      .post<HallFame[]>(_api_default + _api_scores, body, httpOptions)
+      .pipe(
+        tap((response) => {
+          this.#hallFame.set(response);
+        })
+      );
+  }
+
+  public getSortedAndFilteredScores(
+    sortOrder: 'asc' | 'desc',
+    filterTerm: string,
+    limit: number = Infinity
+  ): HallFame[] {
+    const sortedScores = [...this.hallFame()].sort((a, b) => {
+      return sortOrder === 'asc' ? a.score - b.score : b.score - a.score;
+    });
+
+    const filteredScores = sortedScores.filter((scores) => {
+      return scores.name.toLowerCase().includes(filterTerm.toLowerCase());
+    });
+
+    return filteredScores.slice(0, limit);
+  }
+
+  public getScores(game: string): Observable<HallFame[]> {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        Accept: 'application/json',
+      }),
+    };
+
+    return this.#http
+      .get<HallFame[]>(`${_api_default}${_api_scores}/${game}`, httpOptions)
+      .pipe(
+        tap((response) => {
+          this.#hallFame.set(response);
+        })
+      );
   }
 }

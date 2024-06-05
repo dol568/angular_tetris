@@ -1,34 +1,64 @@
-<div>
-  <input
-    type="text"
-    name="term"
-    [(ngModel)]="term"
-    class="form-control"
-    placeholder="Filter by action..."
-  />
+<mat-form-field class="w-100 mt-3" appearance="outline">
+  <mat-label>Filter by action</mat-label>
+  <input matInput #input 
+  (keyup)="applyFilter($event.target['value'])"/>
+</mat-form-field>
+
+<section class="mat-elevation-z8 mt-3" tabindex="0">
+  <table mat-table [dataSource]="dataSource">
+    <ng-container matColumnDef="timestamp">
+      <th
+        mat-header-cell
+        *matHeaderCellDef
+        (click)="changeOrderSignal.set(changeOrderSignal() === false)"
+      >
+        Timestamp @if (!changeOrderSignal()) {
+        <mat-icon class="pt-2">expand_more</mat-icon>
+        } @else {
+        <mat-icon class="pt-2">expand_less</mat-icon>
+        }
+      </th>
+      <td mat-cell *matCellDef="let element">
+        {{ element.timestamp | date : "mediumTime" }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actionName">
+      <th mat-header-cell *matHeaderCellDef>Action</th>
+      <td mat-cell *matCellDef="let element">{{ element.actionName }}</td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    <tr class="mat-row" *matNoDataRow>
+      <td class="mat-cell pl-3 pt-3" [attr.colspan]="displayedColumns.length">
+        No records found.
+      </td>
+    </tr>
+  </table>
+  <mat-paginator pageSize="5" hidePageSize="true"></mat-paginator>
+</section>
+
+<!-- <div>
+  <input type="text" name="term" [(ngModel)]="term" class="form-control" placeholder="Filter by action..."/>
   <table class="table table-hover table-striped">
     <thead>
-      <tr>
-        <th
-          scope="col"
-          (click)="changeOrderSignal.set(changeOrderSignal() === false)"
-        >
-          Timestamp
-          <i
-            [class]="'fa fa-sort-' + (changeOrderSignal() ? 'asc' : 'desc')"
-          ></i>
-        </th>
-        <th scope="col">Action</th>
-      </tr>
+    <tr>
+      <th scope="col"
+          (click)="changeOrder()">
+        Timestamp <i [class]="'fa fa-sort-' + (reverse ? 'asc' : 'desc')"></i>
+      </th>
+      <th scope="col">Action</th>
+    </tr>
     </thead>
     <tbody>
-      @for (item of tableData() | filter: 'actionName': term | sort:
-      changeOrderSignal(): 'timestamp'; track item) {
-      <tr>
-        <th>{{ item.timestamp | date : "mediumTime" }}</th>
-        <th>{{ item.actionName }}</th>
-      </tr>
-      }
+    <tr *ngFor="let item of pageOfItems ">
+      <th>{{ item.timestamp | date:'mediumTime' }}</th>
+      <th>{{ item.actionName }}</th>
+    </tr>
     </tbody>
   </table>
-</div>
+  <div class="card-footer pb-0 pt-3">
+    <pagination [items]="dataSource | filter:'actionName':term | sort:reverse:'timestamp'" (changePage)="onChangePage($event)"></pagination>
+  </div>
+</div> -->

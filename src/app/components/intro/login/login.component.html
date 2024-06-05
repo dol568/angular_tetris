@@ -1,79 +1,98 @@
-<h3 style="color: #0cabba">Welcome</h3>
-<hr />
-<form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-  <div class="mb-3 form-group">
-    <label for="email">Email</label>
-    <input
-      type="text"
-      class="form-control"
-      id="email"
-      formControlName="email"
-      [ngClass]="{ 'is-invalid': f['email'].touched && !emailValid }"
-    />
-    <div class="invalid-feedback">
-      @if (f['email'].touched && !emailRequiredValid) {
-      <span class="text-danger">Email is required</span>
-      } @if (emailRequiredValid) {
-      <div>
-        <div
-          [ngClass]="{
-            'text-success': requiresEmailValid,
-            'text-danger': !requiresEmailValid
-          }"
+<div class="mat-elevation-z8">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        <h3 [ngClass]="toggleChecked ? 'color' : 'black-and-white'">Login</h3>
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="outline" class="w-100 my-2">
+          <mat-label>Username</mat-label>
+          <input
+            type="text"
+            id="username"
+            formControlName="username"
+            matInput
+            [ngClass]="{ 'is-invalid': f['username'].dirty && !usernameValid }"
+          />
+          <mat-error>{{ checkForErrorsIn("username") }}</mat-error>
+        </mat-form-field>
+        <mat-form-field
+          style="width: 100%"
+          appearance="outline"
+          class="w-100 my-2"
         >
-          Must be a valid email address
-        </div>
-      </div>
-      }
-    </div>
-  </div>
+          <mat-label>Id</mat-label>
+          <input
+            id="id"
+            name="id"
+            formControlName="id"
+            [type]="id ? 'text' : 'password'"
+            matInput
+            placeholder="Id"
+            [ngClass]="{ 'is-invalid': f['id'].dirty && !idValid }"
+          />
+          <mat-icon matSuffix (click)="toggleIdVisibility()">{{
+            id ? "visibility_off" : "visibility"
+          }}</mat-icon>
+          <mat-error>{{ checkForErrorsIn("id") }}</mat-error>
+        </mat-form-field>
+        <mat-form-field
+          floatLabel="always"
+          appearance="outline"
+          class="w-100 my-2"
+        >
+          <mat-label>Choose a game</mat-label>
+          <input matInput style="display: none" required />
+          <mat-radio-group
+            formControlName="game"
+            name="game"
+            class="d-flex justify-content-center"
+          >
+            <mat-radio-button value="tetris" color="accent">
+              <span>Tetris</span>
+            </mat-radio-button>
+            <mat-radio-button value="snake" color="primary" class="mx-5">
+              <span>Snake</span>
+            </mat-radio-button>
+            <mat-radio-button value="race" color="warn">
+              <span>Race</span>
+            </mat-radio-button>
+          </mat-radio-group>
 
-  <div class="mb-2">
-    <div class="form-group">
-      <label for="password">Password</label>
-      <div class="input-group">
-        <input
-          [type]="type()"
-          class="form-control"
-          id="password"
-          name="password"
-          formControlName="password"
-          [ngClass]="{ 'is-invalid': f['password'].touched && !passwordValid }"
-        />
-        <div class="input-group-append">
-          <span class="input-group-text">
-            <span
-              (click)="hideShowPass()"
-              class="fa"
-              [ngClass]="{ 'fa-eye': isText(), 'fa-eye-slash': !isText() }"
-            >
-            </span>
-          </span>
-        </div>
-        <div class="invalid-feedback">
-          @if (f['password'].touched && !passwordRequiredValid) {
-          <span class="text-danger">Password is required</span>
-          }
-        </div>
-      </div>
-    </div>
-  </div>
+          <mat-error></mat-error>
+        </mat-form-field>
 
-  <hr class="mb-4" />
-  <button
-    class="btn btn-lg btn-block"
-    [disabled]="!loginForm.valid"
-    type="submit"
-    style="background-color: #0cabba; color: aliceblue; font-size: 24px"
-  >
-    Start Game
-  </button>
-  <div class="text-center mt-1" style="font-size: 20px">
-    <p class="small mt-2 pt-1 mb-0" style="font-weight: bold">
-      Don't have an account?
-      <a (click)="register.emit()" style="color: #dc4c64; cursor: pointer"
-        >Register</a
-      >
-    </p>
-  </div>
-</form>
+        <mat-form-field
+          floatLabel="always"
+          appearance="outline"
+          class="w-100 my-2"
+        >
+          <mat-label>Choose a theme</mat-label>
+          <input matInput style="display: none" required />
+          <mat-slide-toggle
+            #slide
+            formControlName="color"
+            class="example-margin d-flex justify-content-center"
+            (change)="onToggleChange($event.checked)"
+          >
+            {{ slide.checked ? "COLOR" : "BLACK AND WHITE" }}
+          </mat-slide-toggle>
+        </mat-form-field>
+        <div class="button">
+          <button
+            mat-fab
+            extended
+            type="submit"
+            color="primary"
+            class="w-100 my-2"
+            [disabled]="loginForm.invalid"
+          >
+            Login<mat-icon iconPositionEnd>login</mat-icon>
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,4 +1,4 @@
-import { _action_started_game } from './_const_vars';
+import { _action_started_game } from './_client_consts';
 
 export class Panel {
   constructor(

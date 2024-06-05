@@ -1,0 +1,37 @@
+<h3 mat-dialog-title>Select Image</h3>
+
+<mat-dialog-content>
+  <div class="row justify-content-center">
+    <div class="col-5">
+      <image-cropper
+        [imageChangedEvent]="data.imageChangedEvent"
+        [maintainAspectRatio]="true"
+        [aspectRatio]="2 / 2"
+        [resizeToWidth]="256"
+        format="png"
+        (imageCropped)="imageCropped($event)"
+      ></image-cropper>
+    </div>
+    <div
+      class="col-5 d-flex flex-column align-items-center justify-content-center"
+    >
+      <img [src]="image" style="width: 100%" />
+    </div>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions class="mb-2 mr-4 d-flex justify-content-end">
+  <button class="mr-4" mat-fab extended (click)="onNoClick()">No Thanks</button>
+  <div class="button">
+    <button
+      cdkFocusInitial
+      mat-fab
+      extended
+      color="primary"
+      class="w-100"
+      (click)="uploadFile()"
+    >
+      Upload<mat-icon iconPositionEnd>save</mat-icon>
+    </button>
+  </div>
+</mat-dialog-actions>

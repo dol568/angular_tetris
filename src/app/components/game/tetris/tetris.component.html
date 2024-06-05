@@ -1,65 +1,139 @@
-<div class="d-flex flex-row justify-content-start">
-  <tetris-core
-    (lineCleared)="onLineCleared()"
-    (gameOver)="onGameOver()"
-    [class.black-and-white]="blackAndWhiteSignal()"
-    tileSize="20px"
-  ></tetris-core>
-  <div class="ml-5 d-flex flex-column align-items-center pb-10" style="flex: 1">
+<mat-grid-list cols="17" rowHeight="62px">
+  <mat-grid-tile colspan="11" rowspan="8" class="ml-0">
+    @if (gameType() === 'tetris') {
+    <tetris-core
+      (lineCleared)="onLineCleared()"
+      (gameOver)="onGameOver()"
+      (carOvertaken)="grantPoints()"
+      [class.black-and-white]="blackAndWhiteSignal() === 'blackAndWhite'"
+      tileSize="20px"
+    ></tetris-core>
+    } @else if (gameType() === 'race') {
+    <ngx-race
+      (carOvertaken)="grantPoints()"
+      (gameOver)="onGameOver()"
+      [boardWidth]="12"
+      [boardHeight]="17"
+      [class.black-and-white]="blackAndWhiteSignal() === 'blackAndWhite'"
+    ></ngx-race>
+    } @else {
+    <ngx-snake
+      (gameOver)="onGameOver()"
+      (foodEaten)="onGrow()"
+      [class.black-and-white]="blackAndWhiteSignal() === 'blackAndWhite'"
+    ></ngx-snake>
+    }
+  </mat-grid-tile>
+  <mat-grid-tile colspan="6" rowspan="1"></mat-grid-tile>
+  <mat-grid-tile colspan="2" rowspan="1">
     <button
-      type="button"
-      class="btn btn-outline-success btn-lg btn-block"
+      class="btn-block"
+      mat-fab
+      color="primary"
       [disabled]="this.gameStatus() === GameStatus.STARTED"
       (click)="start()"
     >
-      Start
+      <mat-icon>play_circle_outline</mat-icon>
     </button>
+  </mat-grid-tile>
+  <mat-grid-tile colspan="2" rowspan="1">
     <button
-      type="button"
-      class="btn btn-outline-danger btn-lg btn-block"
+      class="btn-block"
+      mat-fab
+      color="warn"
       [disabled]="
         this.gameStatus() === GameStatus.PAUSED ||
         this.gameStatus() === GameStatus.READY
       "
       (click)="stop()"
     >
-      Stop
+      <mat-icon>pause_circle_outline</mat-icon>
     </button>
+  </mat-grid-tile>
+  <mat-grid-tile colspan="2" rowspan="1">
     <button
-      type="button"
-      class="btn btn-outline-info btn-lg btn-block"
+      class="btn-block"
+      mat-fab
+      color="accent"
       [disabled]="this.gameStatus() === GameStatus.READY"
       (click)="reset()"
     >
-      Reset
+      <mat-icon>replay</mat-icon>
     </button>
-    @if (!blackAndWhiteSignal()) {
-    <button
-      type="button"
-      class="btn btn-outline-dark btn-lg btn-block"
-      (click)="blackAndWhiteSignal.set(true)"
-    >
-      Black And White
+  </mat-grid-tile>
+  @if (blackAndWhiteSignal() === 'blackAndWhite') {
+  <mat-grid-tile colspan="6" rowspan="1">
+    <button mat-fab class="btn-block" (click)="changeTheme('color')">
+      <mat-icon>invert_colors_off</mat-icon>
     </button>
-    } @else {
+  </mat-grid-tile>
+  } @else {
+  <mat-grid-tile colspan="6" rowspan="1">
     <button
-      type="button"
-      class="btn btn-outline-warning btn-lg btn-block"
-      (click)="blackAndWhiteSignal.set(false)"
+      mat-fab
+      color="primary"
+      class="btn-block"
+      (click)="changeTheme('blackAndWhite')"
     >
-      Color
+      <mat-icon>invert_colors</mat-icon>
+    </button>
+  </mat-grid-tile>
+  }
+  <mat-grid-tile colspan="6" rowspan="1"></mat-grid-tile>
+  @if (gameType() !== 'tetris') {
+  <mat-grid-tile colspan="6" rowspan="1"
+    ><button
+      mat-fab
+      (click)="up()"
+      style="cursor: pointer; background-color: #28a745"
+    >
+      <mat-icon>arrow_upward</mat-icon>
+    </button></mat-grid-tile
+  >
+  }
+  <mat-grid-tile colspan="2" rowspan="1"
+    ><button
+      mat-fab
+      (click)="left()"
+      style="cursor: pointer; background-color: #28a745"
+    >
+      <mat-icon>arrow_back</mat-icon>
+    </button></mat-grid-tile
+  >
+  <mat-grid-tile colspan="2" rowspan="1">
+    @if (gameType() === 'tetris') {
+    <button mat-fab (click)="up()" style="cursor: pointer" color="accent">
+      <mat-icon>loop</mat-icon>
     </button>
     }
-
-    <div class="d-flex align-items-center mt-auto">
-      <a (click)="left()"><i class="fas fa-angle-left icon"></i></a>
-      <a (click)="rotate()" class="mr-3 ml-3"
-        ><i class="fas fa-sync-alt rotate"></i
-      ></a>
-      <a (click)="right()"><i class="fas fa-angle-right icon"></i></a>
-    </div>
-
-    <a (click)="down()"><i class="fas fa-angle-down icon"></i></a>
-    <a (click)="drop()"><i class="fas fa-angle-double-down icon"></i></a>
-  </div>
-</div>
+  </mat-grid-tile>
+  <mat-grid-tile colspan="2" rowspan="1"
+    ><button
+      mat-fab
+      (click)="right()"
+      style="cursor: pointer; background-color: #28a745"
+    >
+      <mat-icon>arrow_forward</mat-icon>
+    </button></mat-grid-tile
+  >
+  <mat-grid-tile colspan="6" rowspan="1"
+    ><button
+      mat-fab
+      (click)="down()"
+      style="cursor: pointer; background-color: #28a745"
+    >
+      <mat-icon>arrow_downward</mat-icon>
+    </button></mat-grid-tile
+  >
+  @if (gameType() === 'tetris') {
+  <mat-grid-tile colspan="6" rowspan="1"
+    ><button
+      mat-fab
+      (click)="drop()"
+      style="cursor: pointer; background-color: #17a2b8"
+    >
+      <mat-icon>arrow_drop_down_circle</mat-icon>
+    </button></mat-grid-tile
+  >
+  }
+</mat-grid-list>

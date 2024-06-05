@@ -1,0 +1,67 @@
+<h3 mat-dialog-title>Edit Profile</h3>
+<form [formGroup]="updateProfileForm" (ngSubmit)="onSubmit()">
+  <mat-dialog-content>
+    <mat-form-field appearance="outline" class="w-100" >
+      <mat-label>Username</mat-label>
+      <input type="text" id="username" formControlName="username" matInput
+      
+      [ngClass]="{ 'is-invalid': f['username'].dirty && !usernameValid }"
+      
+      />
+      <mat-error>{{ checkForErrorsIn("username") }}</mat-error>
+    </mat-form-field>
+
+    <mat-form-field style="width: 100%" appearance="outline" class="w-100">
+      <mat-label>Email</mat-label>
+      <input
+      type="text"
+        id="email"
+        name="email"
+        formControlName="email"
+        name="email"
+        matInput
+        placeholder="Email"
+        [ngClass]="{ 'is-invalid': f['email'].dirty && !emailValid }"
+      />
+      <mat-error>{{ checkForErrorsIn("email") }}</mat-error>
+    </mat-form-field>
+
+    <mat-form-field style="width: 100%" appearance="outline" class="w-100">
+        <mat-label>Bio</mat-label>
+        <textarea matInput
+        type="text"
+          id="bio"
+          name="bio"
+          formControlName="bio"
+          name="bio"
+          placeholder="Bio"
+          [ngClass]="{ 'is-invalid': f['bio'].dirty && !emailValid }"
+        cdkTextareaAutosize
+        #autosize="cdkTextareaAutosize"
+        cdkAutosizeMinRows="1"
+        cdkAutosizeMaxRows="5"></textarea>
+
+        <mat-error>{{ checkForErrorsIn("bio") }}</mat-error>
+      </mat-form-field>
+
+
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="mb-2 mr-4 d-flex justify-content-end">
+    <button class="mr-4" mat-fab extended (click)="onNoClick()">No Thanks</button>
+
+    <div class="button">
+      <button
+        cdkFocusInitial
+        mat-fab
+        extended
+        type="submit"
+        color="primary"
+        class="w-100"
+        [disabled]="updateProfileForm.invalid"
+      >
+        Save<mat-icon iconPositionEnd>save</mat-icon>
+      </button>
+    </div>
+  </mat-dialog-actions>
+</form>

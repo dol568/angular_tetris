@@ -1,48 +1,75 @@
-<div class="mx-5">
-  <div class="row d-flex justify-content-between">
-    <button class="btn btn-danger" type="button" (click)="goBack()">
-      <i class="fas fa-arrow-left"></i> Go Back
-    </button>
-    <button class="btn btn-success ml-5" type="button">
-      Welcome back, {{ currentUser()?.username }} !
-    </button>
-  </div>
+<mat-grid-list
+      [cols]="columns"
+      [rowHeight]="rowHeight"
+      gutterSize="25px"
+      style="margin: 25px"
+    >
+      <mat-grid-tile [colspan]="colspan1">
+        <mat-card style="width: 100%; background-color: #f5f5f5">
+          <mat-card-content>
+            <div
+              class="d-flex flex-column align-items-center px-2 stats pb-2 w-80 mat-elevation-z8"
+            >
+              <mat-card-header>
+                <button class="mb-2" mat-fab extended color="{{color === 'color' ? 'primary' : 'warn'}}">
+                  STATS
+                  <mat-icon>equalizer</mat-icon>
+                </button>
+              </mat-card-header>
+              <div class="content">
+                <app-panel [panel]="panel()"></app-panel>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </mat-grid-tile>
 
-  <div class="row mt-3">
-    <div class="col-md-3 d-flex flex-column align-items-center px-2 list">
-      <h4 class="logo pb-1">{{ title() }}</h4>
-      <div class="border content" style="overflow-y: scroll">
-        <app-hall-of-fame
-          [hallFameData]="hallFame()"
-          (order)="getOrder()"
-        ></app-hall-of-fame>
-      </div>
-    </div>
-    <div class="col-md-2 d-flex flex-column align-items-center px-2 stats">
-      <h4 class="logo pb-1">STATS</h4>
-      <div class="border content">
-        <app-panel [panel]="panel()"></app-panel>
-      </div>
-    </div>
-    <div class="col-md-4 d-flex flex-column align-items-center px-2 game">
-      <h4 class="logo pb-1">GAME</h4>
-      <div class="content">
-        <app-tetris
-          [hallFame]="hallFame()"
-          [panel]="panel()"
-          [currentUser]="currentUser()"
-          (panelData)="getPanel($event)"
-          (scoreData)="getScores($event)"
-          (gameOverScore)="getGameOverScore($event)"
-        >
-        </app-tetris>
-      </div>
-    </div>
-    <div class="col-md-3 d-flex flex-column align-items-center px-2 list">
-      <h4 class="logo pb-1">HISTORY</h4>
-      <div class="border content" style="overflow-y: scroll">
-        <app-list [tableData]="panel()?.tableData"></app-list>
-      </div>
-    </div>
-  </div>
-</div>
+      <mat-grid-tile [colspan]="colspan2">
+        <mat-card style="width: 100%; background-color: #f5f5f5">
+          <mat-card-content>
+            <div
+              class="d-flex flex-column align-items-center px-2 game w-80 pb-2 mat-elevation-z8"
+            >
+              <mat-card-header>
+                <button class="mb-2" mat-fab extended color="{{color === 'color' ? 'primary' : 'warn'}}">
+                  <mat-icon>gamepad</mat-icon> {{ gameType | uppercase }} GAME
+                </button>
+              </mat-card-header>
+              <div class="content">
+                <app-tetris
+                  [panel]="panel()"
+                  [currentUser]="currentUser()"
+                  (panelData)="getPanel($event)"
+                  (gameOverScore)="getGameOverScore($event)"
+                  [blackAndWhiteSignal]="color"
+                  [gameType]="gameType"
+                  (color)="setColor($event)"
+                >
+                </app-tetris>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </mat-grid-tile>
+
+      <mat-grid-tile [colspan]="colspan3">
+        <mat-card style="width: 100%; background-color: #f5f5f5">
+          <mat-card-content>
+            <div
+              class="d-flex flex-column align-items-center px-2 list w-80 pb-2 mat-elevation-z8"
+            >
+              <mat-card-header>
+                <button class="mb-2" mat-fab extended color="{{color === 'color' ? 'primary' : 'warn'}}">
+                  <mat-icon>history</mat-icon>
+                  HISTORY
+                </button>
+              </mat-card-header>
+              <div class="content">
+                <app-list [tableData]="panel()?.tableData"></app-list>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </mat-grid-tile>
+      </mat-grid-list>
+      <router-outlet></router-outlet>

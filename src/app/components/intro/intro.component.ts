@@ -1,44 +1,32 @@
-import {Component, computed, effect, inject, signal, Signal, WritableSignal} from '@angular/core';
+import { Component, inject, OnInit, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {LoginComponent} from "./login/login.component";
-import {User} from "../../model/User";
-import {AccountService} from "../../services/account.service";
-import {Router} from "@angular/router";
-import {RegisterComponent} from "./register/register.component";
-import { _client_game } from '../../model/_const_vars';
+import { LoginComponent } from './login/login.component';
+import { User } from '../../model/User';
+import { AccountService } from '../../services/account.service';
+import { Router } from '@angular/router';
+import { _client_game } from '../../model/_client_consts';
 
 @Component({
   selector: 'app-intro',
   standalone: true,
-  imports: [CommonModule, LoginComponent, RegisterComponent],
+  imports: [CommonModule, LoginComponent],
   templateUrl: './intro.component.html',
-  styleUrl: './intro.component.scss'
+  styleUrl: './intro.component.scss',
 })
-export class IntroComponent {
+export class IntroComponent implements OnInit {
   #accountService = inject(AccountService);
   #router = inject(Router);
 
-  #register: WritableSignal<boolean> = signal<boolean>(false);
-  register: Signal<boolean> = computed(this.#register);
-  currentUser: Signal<User> = this.#accountService.user;
+  user: Signal<User> = this.#accountService.user;
 
-  public registerUser(data: User): void {
-    this.#accountService.register(data);
+  ngOnInit(): void {
+    this.#accountService.logout();
   }
 
-  public loginUser(data: User): void {
-    this.#accountService.login(data);
-  }
-
-  public goToGame(): void {
-    this.#router.navigate([_client_game]);
-  }
-
-  public enableRegister(): void {
-    this.#register.set(true);
-  }
-
-  public disableRegister(): void {
-    this.#register.set(false);
+  public loginUser(data: any): void {
+    let color = data.color ? 'color' : 'blackAndWhite';
+    this.#accountService.login({ ...data, color }).subscribe(() => {
+      this.#router.navigate([_client_game, data.game, color]);
+    });
   }
 }

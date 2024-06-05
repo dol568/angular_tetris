@@ -2,7 +2,7 @@ import { CanActivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { AccountService } from '../services/account.service';
 import { SnackbarService } from '../services/snackbar.service';
-import { _client_game, _client_home } from '../model/_const_vars';
+import { _client_game, _client_home } from '../model/_client_consts';
 
 export const authGuard: CanActivateFn = (route, state) => {
   const snackBarService = inject(SnackbarService);
@@ -15,7 +15,7 @@ export const authGuard: CanActivateFn = (route, state) => {
     router
       .navigate([_client_home])
       .then(() =>
-        snackBarService.error(
+        snackBarService.openSnackBar(
           'You need to be logged in to access this resource',
           'Try again!'
         )

@@ -1,24 +1,25 @@
-import {inject, Injectable} from '@angular/core';
-import {MatSnackBar, MatSnackBarConfig} from "@angular/material/snack-bar";
+import { inject, Injectable } from '@angular/core';
+import {
+  MatSnackBar,
+  MatSnackBarHorizontalPosition,
+  MatSnackBarVerticalPosition,
+} from '@angular/material/snack-bar';
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root',
 })
 export class SnackbarService {
-    #snackBar = inject(MatSnackBar);
+  #snackBar = inject(MatSnackBar);
 
-    public success(message: string, messageClose: string): void {
-        this.#getSnack(message, messageClose, 'success-snackbar');
-    }
+  #durationInSeconds: number = 3;
+  #horizontalPosition: MatSnackBarHorizontalPosition = 'end';
+  #verticalPosition: MatSnackBarVerticalPosition = 'bottom';
 
-    public error(message: string, messageClose: string): void {
-        this.#getSnack(message, messageClose, 'error-snackbar');
-    }
-
-    #getSnack(message: string, messageClose: string, panelClass: string): void {
-        const config = new MatSnackBarConfig();
-        config.panelClass = [`${panelClass}`];
-        config.duration = 5000;
-        this.#snackBar.open(message, messageClose, config);
-    }
+  public openSnackBar(message: string, messageClose: string = 'Close'): void {
+    this.#snackBar.open(message, messageClose, {
+      horizontalPosition: this.#horizontalPosition,
+      verticalPosition: this.#verticalPosition,
+      duration: this.#durationInSeconds * 1000,
+    });
+  }
 }

@@ -1,0 +1,82 @@
+<div class="container d-flex flex-column align-items-center">
+  <mat-card style="width: 70%" class="mb-3">
+    <mat-card-content
+      [style.background-color]="currentUser()?.color === 'color' ? '#3f51b5' : '#f44336'"
+      [style.color]="'#fff'"
+    >
+      <div class="w-100 d-flex flex-row align-items-center">
+        <div class="col-3 py-3">
+          <img
+            class="rounded-circle"
+            src="{{
+              currentUser().image
+                ? 'data:image/png;base64,' + currentUser().image
+                : './../../../assets/user.jpg'
+            }}"
+            alt="Profile photo"
+            style="width: 100%"
+          />
+        </div>
+        <div class="col-6 d-flex flex-column justify-content-between">
+          <h1 class="card-text">{{ currentUser()?.username }}</h1>
+          <span class="card-text">Email: {{ currentUser().email }}</span>
+          <span class="card-text text-wrap text-break"
+            >Bio: {{ currentUser()?.bio }}</span
+          >
+        </div>
+        <div class="col-3 d-flex flex-column" style="gap: 70px">
+          <button (click)="openDialog()" class="btn btn-outline-light">
+            Edit Profile
+          </button>
+
+          <input
+            id="files"
+            style="visibility: hidden"
+            type="file"
+            (change)="fileChangeEvent($event)"
+          />
+          <label for="files" class="btn btn-outline-light">Select Image</label>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card style="width: 70%">
+    <mat-card-content class="w-100 d-flex flex-column align-items-center">
+      <h3>My Scores</h3>
+      <mat-tab-group animationDuration="2000ms" class="w-100">
+        <mat-tab label="Tetris" (click)="game.set('tetris')">
+          <ng-template mat-tab-label>
+            <span class="custom-label" (click)="game.set('tetris')"
+              >Tetris</span
+            >
+          </ng-template>
+          <app-table-scores
+            [hallFame]="hallFame()"
+            (sortOrder)="getSortOrder($event)"
+          ></app-table-scores>
+        </mat-tab>
+
+        <mat-tab label="Snake">
+          <ng-template mat-tab-label>
+            <span class="custom-label" (click)="game.set('snake')">Snake</span>
+          </ng-template>
+          <app-table-scores
+            [hallFame]="hallFame()"
+            (sortOrder)="getSortOrder($event)"
+          ></app-table-scores>
+        </mat-tab>
+
+        <mat-tab label="Race">
+          <ng-template mat-tab-label>
+            <span class="custom-label" (click)="game.set('race')">Race</span>
+          </ng-template>
+          <app-table-scores
+            [hallFame]="hallFame()"
+            (sortOrder)="getSortOrder($event)"
+          ></app-table-scores>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-card-content>
+  </mat-card>
+</div>

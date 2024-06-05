@@ -3,7 +3,7 @@ import {
   computed,
   effect,
   EventEmitter,
-  HostListener,
+  inject,
   input,
   InputSignal,
   OnChanges,
@@ -20,43 +20,70 @@ import {
 import { TetrisCoreComponent, TetrisCoreModule } from 'ngx-tetris';
 import { GameStatus, TableData, Panel } from '../../../model/Panel';
 import { User } from '../../../model/User';
-import { HallFame } from '../../../model/HallFame';
 import {
+  _action_car_overtaken,
+  _action_food_eaten,
   _action_game_over,
   _action_line_cleared,
   _action_paused_game,
   _action_reset_game,
   _action_started_game,
+  _client_game,
   _localstorage_hall_fame,
   _localstorage_panel,
-} from '../../../model/_const_vars';
+} from '../../../model/_client_consts';
 import { CommonModule } from '@angular/common';
 import { interval, Subscription } from 'rxjs';
+import { NgxSnakeComponent, NgxSnakeModule } from 'ngx-snake';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatButton } from '@angular/material/button';
+import { MatCard } from '@angular/material/card';
+import { MatFabButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { MatIconModule } from '@angular/material/icon';
+import { Router } from '@angular/router';
+import { NgxRaceComponent, NgxRaceModule } from 'ngx-race';
+import { Hotkey, HotkeyModule, HotkeysService } from 'angular2-hotkeys';
 
 @Component({
   selector: 'app-tetris',
   standalone: true,
-  imports: [TetrisCoreModule, CommonModule],
+  imports: [
+    TetrisCoreModule,
+    CommonModule,
+    NgxSnakeModule,
+    MatGridListModule,
+    MatButton,
+    MatCard,
+    MatFabButton,
+    MatIcon,
+    MatIconModule,
+    NgxRaceModule,
+    HotkeyModule,
+  ],
   templateUrl: './tetris.component.html',
   styleUrl: './tetris.component.scss',
 })
 export class TetrisComponent implements OnInit, OnDestroy, OnChanges {
+  @ViewChild(NgxRaceComponent)
+  private _race: NgxRaceComponent;
   @ViewChild(TetrisCoreComponent)
   private _tetris: TetrisCoreComponent;
+  @ViewChild(NgxSnakeComponent)
+  private _snake: NgxSnakeComponent;
   @Output() panelData = new EventEmitter<Panel>();
-  @Output() scoreData = new EventEmitter<HallFame[]>();
+  @Output() color = new EventEmitter<string>();
   @Output() gameOverScore = new EventEmitter<number>();
   currentUser: InputSignal<User> = input.required<User>();
   panel: InputSignal<Panel> = input.required<Panel>();
-  hallFame: InputSignal<HallFame[]> = input.required<HallFame[]>();
   #time: WritableSignal<number> = signal<number>(-1);
-  blackAndWhiteSignal: WritableSignal<boolean> = signal<boolean>(false);
+  #router = inject(Router);
+  blackAndWhiteSignal = input.required<string>();
   #tableData: WritableSignal<TableData[]> = signal<TableData[]>([]);
   #points: WritableSignal<number> = signal<number>(undefined);
   #bestScore: WritableSignal<number> = signal<number>(undefined);
   gameStatus: WritableSignal<GameStatus> = signal<GameStatus>(undefined);
   #display: WritableSignal<string> = signal<string>(undefined);
-  #hallFameSignal: WritableSignal<HallFame[]> = signal<HallFame[]>([]);
   panelDataSignal: Signal<Panel> = computed(() => ({
     points: this.#points(),
     bestScore: this.#bestScore(),
@@ -66,8 +93,10 @@ export class TetrisComponent implements OnInit, OnDestroy, OnChanges {
   }));
   #subscription: Subscription;
   readonly GameStatus = GameStatus;
+  gameType = input.required<string>();
 
-  constructor() {
+  constructor(private _hotkeysService: HotkeysService) {
+    this._addHotkeys();
     effect(() => {
       this.panelData.emit(this.panelDataSignal());
     });
@@ -84,12 +113,16 @@ export class TetrisComponent implements OnInit, OnDestroy, OnChanges {
     this.gameStatus.set(this.panel()?.gameStatus);
     this.#display.set(this.panel()?.display);
     this.#tableData.set(this.panel()?.tableData);
-    this.#hallFameSignal.set(this.hallFame());
   }
 
   ngOnDestroy(): void {
-    this._tetris.actionStop();
-    this._tetris.actionReset();
+    this.#takeAction(this.gameType(), 'actionStop');
+    this.#takeAction(this.gameType(), 'actionReset');
+  }
+
+  changeTheme(colorPath: string) {
+    this.color.emit(colorPath);
+    this.#router.navigate([_client_game, this.gameType(), colorPath]);
   }
 
   public start(): void {
@@ -101,7 +134,17 @@ export class TetrisComponent implements OnInit, OnDestroy, OnChanges {
     });
 
     this.#tableData.update((values) => [...values, new TableData()]);
-    this._tetris.actionStart();
+    this.#takeAction(this.gameType(), 'actionStart');
+  }
+
+  #takeAction(game: string, action: string) {
+    if (game === 'race') {
+      this._race[action]();
+    } else if (game === 'tetris') {
+      this._tetris[action]();
+    } else {
+      this._snake[action]();
+    }
   }
 
   public stop(): void {
@@ -113,7 +156,7 @@ export class TetrisComponent implements OnInit, OnDestroy, OnChanges {
       new TableData(_action_paused_game),
     ]);
 
-    this._tetris.actionStop();
+    this.#takeAction(this.gameType(), 'actionStop');
   }
 
   public reset(): void {
@@ -130,38 +173,32 @@ export class TetrisComponent implements OnInit, OnDestroy, OnChanges {
         : GameStatus.READY
     );
 
-    this._tetris.actionReset();
+    this.#takeAction(this.gameType(), 'actionReset');
     this.gameStatus() === GameStatus.STARTED ? this.start() : null;
   }
 
-  public onLineCleared(): void {
+  public grantPoints(): void {
+    this.#getPoints(_action_car_overtaken);
+  }
+
+  public onGrow(): void {
+    this.#getPoints(_action_food_eaten);
+  }
+
+  #getPoints(actionName: string) {
     this.#points.update((points) => points + 100);
     this.#tableData.update((values) => [
       ...values,
-      new TableData(_action_line_cleared),
+      new TableData(actionName),
     ]);
 
     if (this.#points() > this.#bestScore()) {
       this.#bestScore.set(this.#points());
-
-      const existingEntry = this.#hallFameSignal().find(
-        (entry) => entry.username === this.currentUser()?.username
-      );
-
-      if (existingEntry) {
-        if (existingEntry.hallFameScore < this.#bestScore()) {
-          existingEntry.hallFameScore = this.#bestScore();
-        }
-      } else {
-        this.#hallFameSignal.update((values) => {
-          return [
-            ...values,
-            new HallFame(this.currentUser()?.username, this.#bestScore()),
-          ];
-        });
-      }
-      this.#saveHighestScore();
     }
+  }
+
+  public onLineCleared(): void {
+    this.#getPoints(_action_line_cleared);
   }
 
   public onGameOver(): void {
@@ -174,7 +211,7 @@ export class TetrisComponent implements OnInit, OnDestroy, OnChanges {
     ]);
 
     this.gameStatus.set(GameStatus.READY);
-    this._tetris.actionReset();
+    this.#takeAction(this.gameType(), 'actionReset');
   }
 
   #transform(value: number): string {
@@ -196,65 +233,78 @@ export class TetrisComponent implements OnInit, OnDestroy, OnChanges {
     this.#subscription.unsubscribe();
     this.#clearTimer();
   }
-  
+
   #clearTimer(): void {
     this.#points.set(0);
     this.#time.set(0);
     this.#display.set(this.#transform(this.#time()));
   }
 
-  #saveHighestScore(): void {
-    this.#hallFameSignal().sort((a, b) => b.hallFameScore - a.hallFameScore);
-    this.scoreData.emit(this.#hallFameSignal());
-  }
-
   public left(): void {
-    this._tetris.actionLeft();
+    this.#takeAction(this.gameType(), 'actionLeft');
   }
 
   public right(): void {
-    this._tetris.actionRight();
+    this.#takeAction(this.gameType(), 'actionRight');
   }
 
   public down(): void {
-    this._tetris.actionDown();
+    if (this.gameType() === 'race') {
+      this._race.actionTurboOff();
+    } else if (this.gameType() === 'tetris') {
+      this._tetris.actionDown();
+    } else {
+      this._snake.actionDown();
+    }
   }
 
-  public rotate(): void {
-    this._tetris.actionRotate();
+  public up(): void {
+    if (this.gameType() === 'race') {
+      this._race.actionTurboOn();
+    } else if (this.gameType() === 'tetris') {
+      this._tetris.actionRotate();
+    } else {
+      this._snake.actionUp();
+    }
   }
 
   public drop(): void {
     this._tetris.actionDrop();
   }
 
-  @HostListener('window:keydown.arrowleft', ['$event'])
-  public moveLeft(event: KeyboardEvent): void {
-    event.stopPropagation();
-    this.left();
-  }
+  private _addHotkeys() {
+    this._hotkeysService.add(
+      new Hotkey('up', (_: KeyboardEvent): boolean => {
+        this.up();
+        return false;
+      })
+    );
 
-  @HostListener('window:keydown.arrowright', ['$event'])
-  public moveRight(event: KeyboardEvent): void {
-    event.stopPropagation();
-    this.right();
-  }
+    this._hotkeysService.add(
+      new Hotkey('left', (_: KeyboardEvent): boolean => {
+        this.left();
+        return false;
+      })
+    );
 
-  @HostListener('window:keydown.arrowdown', ['$event'])
-  public moveDown(event: KeyboardEvent): void {
-    event.stopPropagation();
-    this.down();
-  }
+    this._hotkeysService.add(
+      new Hotkey('down', (_: KeyboardEvent): boolean => {
+        this.down();
+        return false;
+      })
+    );
 
-  @HostListener('window:keydown.arrowup', ['$event'])
-  public rotatePiece(event: KeyboardEvent): void {
-    event.stopPropagation();
-    this.rotate();
-  }
-
-  @HostListener('window:keydown.enter', ['$event'])
-  public dropPiece(event: KeyboardEvent): void {
-    event.stopPropagation();
-    this.drop();
+    this._hotkeysService.add(
+      new Hotkey('right', (_: KeyboardEvent): boolean => {
+        this.right();
+        return false;
+      })
+    );
+    this._hotkeysService.add(
+      new Hotkey('enter', (_: KeyboardEvent): boolean => {
+        this.drop();
+        return false;
+      })
+    );
   }
 }

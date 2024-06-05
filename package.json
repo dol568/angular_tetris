@@ -23,11 +23,14 @@
     "@angular/router": "^17.2.4",
     "@angular/service-worker": "^17.2.4",
     "angular-animations": "^0.11.0",
+    "angular2-hotkeys": "^16.0.1",
     "firebase": "^10.7.0",
+    "ngx-image-cropper": "^7.2.1",
+    "ngx-race": "^1.0.0",
+    "ngx-snake": "^1.0.6",
     "ngx-tetris": "^1.1.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
-    "xlsx": "^0.18.5",
     "zone.js": "~0.14.2"
   },
   "devDependencies": {

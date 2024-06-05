@@ -1,6 +1,33 @@
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+@import 'https://fonts.googleapis.com/icon?family=Material+Icons';
+* {
+  box-sizing: border-box;
+}
 button:disabled {
   cursor: not-allowed;
   pointer-events: all !important;
+}
+
+ngx-snake {
+  &.black-and-white{
+      ngx-snake-tile {
+          background: #ffffff;
+          &.free {
+              div {
+                  background: #ffffff;
+              }
+          }
+
+          &.head,
+          &.tail,
+          &.food,
+          &.body {
+              div {
+                  background: #000000;
+              }
+          }
+      }
+  }
 }
 
 tetris-core {
@@ -43,25 +70,38 @@ tetris-core {
   }
 }
 
-.error-snackbar {
-  border-radius: 5px;
-  background-color: rgb(153, 50, 50) !important;
-  color: beige;
+ngx-race {
+  &.black-and-white {
+      ngx-race-tile {
+          background: #ffffff;
+          &.free {
+              div {
+                  background: #ffffff;
+              }
+          }
+
+          &.car {
+              div {
+                  background: #000000;
+              }
+          }
+
+          &.othercar {
+              div {
+                  background: #7c7c7c;
+              }
+          }
+      }
+  }
 }
 
-.success-snackbar {
-  border-radius: 5px;
-  background-color: rgb(20, 108, 26) !important;
-  color: beige;
+body { background-color: #787276 !important;
+  height: 100%;
 }
 
-.cdk-global-overlay-wrapper {
-  align-items: center !important;
-  justify-content: center !important;
+html{
+  height: 100%;
 }
-
-.cdk-overlay-pane {
-  bottom: 25px;
-  right: 25px;
-  position: fixed !important;
+label.mdc-label {
+  margin-bottom: 0;
 }

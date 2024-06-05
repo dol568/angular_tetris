@@ -1,27 +1,57 @@
-<div>
-  <table class="table table-hover table-striped" id="top10">
-    <thead>
-      <tr>
-        <th scope="col">#</th>
-        <th scope="col">Username</th>
-        <th scope="col" (click)="changeOrder()">
-          Best Score
-          <i
-            [class]="'fa fa-sort-' + (changeOrderSignal() ? 'asc' : 'desc')"
-            aria-hidden="true"
-          ></i>
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (item of hallFameData() | sort:!changeOrderSignal():'hallFameScore' |
-      slice:0:10; track item; let i = $index) {
-      <tr>
-        <th>{{ i + 1 }}</th>
-        <th>{{ item.username }}</th>
-        <th>{{ item.hallFameScore }}</th>
-      </tr>
-      }
-    </tbody>
-  </table>
-</div>
+<mat-card style="background-color: #f5f5f5" class="mx-4">
+  <mat-card-content class="w-100">
+    <div
+      class="d-flex flex-column align-items-center px-2 list w-80 mat-elevation-z8"
+    >
+      <mat-card-header>
+        <div class="d-flex flex-row align-items-center justify-content-between">
+          <mat-checkbox class="mr-5" (change)="showMyScores($event)"
+            >Only My Scores</mat-checkbox
+          >
+          @if (this.sort() === 'desc') {
+          <button
+            class="mb-2"
+            mat-fab
+            extended
+            color="{{ color === 'color' ? 'primary' : 'warn' }}"
+          >
+            TOP 10 <mat-icon>star</mat-icon>
+          </button>
+          } @else {
+          <button
+            class="mb-2"
+            mat-fab
+            extended
+            color="{{ color === 'color' ? 'primary' : 'warn' }}"
+          >
+            LOWEST 10 <mat-icon>thumb_down</mat-icon>
+          </button>
+          }
+          <mat-checkbox #timer (change)="toggle($event)">{{
+            timer.checked
+              ? "Stopped retrieving scores"
+              : "Started retrieving scores"
+          }}</mat-checkbox>
+        </div>
+      </mat-card-header>
+      <div class="content">
+        <div class="d-flex flex-column justify-content-between">
+          <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Filter by name</mat-label>
+            <input
+              matInput
+              #input
+              (keyup)="applyFilter($event.target['value'])"
+            />
+          </mat-form-field>
+          <div class="example-container mat-elevation-z8" tabindex="0">
+            <app-table-scores
+              [hallFame]="hallFame()"
+              (sortOrder)="getSortOrder($event)"
+            ></app-table-scores>
+          </div>
+        </div>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>

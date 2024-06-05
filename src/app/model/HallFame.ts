@@ -1,3 +1,5 @@
-export class HallFame {
-  constructor(public username: string, public hallFameScore: number) {}
+export interface HallFame {
+  id: number;
+  name: string;
+  score: number;
 }
